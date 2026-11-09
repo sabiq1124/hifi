@@ -184,6 +184,24 @@ ol,ul{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:
 .srow{display:flex;flex-direction:column;gap:6px;padding-block:8px;border-top:1px solid var(--line)}
 .srow:first-child{border-top:0}.srow .seg{flex:1 1 220px}.parts{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:10px;background:var(--bg)}
 details.jz>div{gap:0}
+@font-face{font-family:"IndoPak";src:url("indopak.woff2") format("woff2");font-display:swap}
+.mus.lay{text-align:initial;text-align-last:initial;line-height:1.95;font-size:26px;word-spacing:0;display:flex;flex-direction:column}
+.mus.lay.ip{font-family:"IndoPak","Noto Naskh Arabic",serif;line-height:2.05}
+.mus.lay .ln{display:flex;justify-content:space-between;align-items:baseline;gap:.18em;white-space:nowrap;min-height:1.95em}
+.mus.lay .ln.short{justify-content:center;gap:.4em}
+.mus.lay .ln.blank{min-height:.6em}
+.mus.lay .ln.shead{justify-content:center;border-block:1px solid var(--line);border-radius:6px;font-family:var(--f-ar);font-size:.7em;color:var(--accent);font-weight:700;align-items:center}
+.mus.lay .ln.basm{justify-content:center;font-size:.85em}
+.mus.lay.measure .ln{justify-content:flex-start;width:max-content}
+.mus.lay .w{cursor:pointer;border-radius:4px}
+.mus.lay .w.sel{background:var(--gold-soft)}
+.mus.lay .hw{color:transparent;background:var(--line);border-radius:6px;opacity:.55}
+.mus.lay .anchor{color:var(--muted)}
+.mus.lay .anum{color:var(--accent);font-size:.8em}
+.paper.mp{padding:12px 10px;overflow:hidden;min-width:0}
+.mus.lay{width:100%;min-width:0;overflow:hidden}
+.mus.lay .sn{font-family:var(--f-ar);font-size:.55em;color:var(--accent);font-weight:700;margin-inline-end:.8em;border:1px solid var(--line);border-radius:6px;padding:0 .4em}
+html,body{overflow-x:hidden}
 @media (max-width:420px){.mus{font-size:24px}.mus.big{font-size:28px}.qbox{font-size:25px}.stats .n{font-size:21px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -215,7 +233,7 @@ const AD=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const DIAC=/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g;
 const MARKS=/^[ؐ-ًؚ-ٰٟۖ-ۭـ]+/;
 const LETTER=/[ء-يٱ]/;
-function norm(w){return w.replace(DIAC,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[^ء-ي]/g,'')}
+function norm(w){return w.replace(/ڪ/g,'ك').replace(/[یۍ]/g,'ي').replace(/[ہھ]/g,'ه').replace(/ۃ/g,'ة').replace(DIAC,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[^ء-ي]/g,'')}
 const today=()=>{const d=new Date();return Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/86400000)};
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let toastT;function toast(m){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2200)}
@@ -223,7 +241,7 @@ let toastT;function toast(m){let t=$('#toast');if(!t){t=document.createElement('
 /* ---------------- state ---------------- */
 const LS='hifz-revival-v1';
 const DEF=()=>({v:1,setup:false,updated:0,juz:Object.fromEntries(Array.from({length:30},(_,i)=>[i+1,i>=16?'forgot':'none'])),
-  pages:{},perDay:2,cap:20,order:'asc',cur:1,mode:'read',color:true,markwf:true,big:false,
+  pages:{},layout:'madani',perDay:2,cap:20,order:'asc',cur:1,mode:'read',color:true,markwf:true,big:false,
   wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{}});
 let S=DEF();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);if(!o.mem){o.mem={};o.setup=false}S=Object.assign(DEF(),o)}}catch(e){}
@@ -237,9 +255,8 @@ function logDay(k,n=1){const d=today();S.log[d]=S.log[d]||{};S.log[d][k]=(S.log[
 let Q=null,SUR=[],PAGES=[],JUZP=[],TOK=[],CONF=null,FREQ=null,PAIRS=null;
 async function loadData(){
   const el=document.getElementById('qdata');if(el&&el.textContent.length>1000){Q=JSON.parse(el.textContent)}else{const r=await fetch('quran.json');Q=await r.json()}SUR=Q.s;
-  PAGES=Array.from({length:605},()=>[]);JUZP=Array.from({length:31},()=>[]);
-  Q.a.forEach((a,i)=>{PAGES[a[3]].push(i)});
-  for(let p=1;p<=604;p++){const j=Q.a[PAGES[p][0]][2];JUZP[j].push(p)}
+  const ld=document.getElementById('ldata');if(ld&&ld.textContent.length>1000){LAYD=JSON.parse(ld.textContent)}else{const r2=await fetch('layouts.json');LAYD=await r2.json()}
+  buildLayout(S.layout||'madani');
   TOK=Q.a.map(a=>a[5].split(' '));
   FREQ=new Set();TOK.forEach(t=>t.forEach(w=>{const n=norm(w);if(n)FREQ.add(n)}));
 }
@@ -321,7 +338,7 @@ R.today=function(){
 };
 function memParts(){const out=[];Object.keys(S.mem||{}).forEach(s=>(S.mem[s]||[]).forEach(p=>out.push({s:+s,a:p.a,e:p.e,st:p.st})));return out}
 function partIds(p){const a=aIndex(p.s,p.a),b=aIndex(p.s,p.e);const r=[];for(let i=a;i<=b;i++)r.push(i);return r}
-function memPageMap(){const m=new Map();memParts().forEach(p=>partIds(p).forEach(i=>{const pg=Q.a[i][3];if(p.st==='good'||!m.has(pg))m.set(pg,p.st)}));
+function memPageMap(){const m=new Map();memParts().forEach(p=>partIds(p).forEach(i=>{const pg=AP[i];if(p.st==='good'||!m.has(pg))m.set(pg,p.st)}));
   if(S.qirath)qPages().forEach(pg=>m.set(pg,'good'));return m}
 function applySetup(){const t=today();const old=S.pages;S.pages={};let k=0;
   memPageMap().forEach((st,p)=>{if(old[p]&&old[p].st==='active'){S.pages[p]=old[p];return}
@@ -343,6 +360,7 @@ function setupHTML(first){const groups=Array.from({length:30},()=>[]);for(let s=
   <div class="small" id="memSum">${memSummary()}</div>
   <input id="sf" type="search" placeholder="Find a surah (name or number)" aria-label="Find a surah" style="width:100%">
   <div id="memList" class="stack" style="gap:8px">${groups.map((ss,j)=>ss.length?`<details class="jz" data-j="${j+1}" ${ss.some(s=>(S.mem[s]||[]).length||(S.qirath||[]).some(q=>q.s===s))?'open':''}><summary>Juz ${j+1} <span class="tiny muted">· ${ss.map(s=>SUR[s-1][1]).join(', ')}</span></summary><div>${ss.map(rowHTML).join('')}</div></details>`:'').join('')}</div>
+  <div class="row"><label class="small" for="laySel">My mushaf</label>${layoutSelectHTML()}</div>
   <div class="row"><label class="small" for="perDay">Pages to revive a day</label><select id="perDay">${[1,2,3,4,5].map(n=>`<option ${S.perDay===n?'selected':''}>${n}</option>`).join('')}</select>
    <label class="small" for="cap">Max revision pages a day</label><select id="cap">${[10,20,30,40].map(n=>`<option value="${n}" ${S.cap===n?'selected':''}>${n}${n===20?' (1 juz)':''}</option>`).join('')}</select>
    <label class="small" for="order">Revive order</label><select id="order"><option value="asc" ${S.order==='asc'?'selected':''}>From the first page</option><option value="desc" ${S.order==='desc'?'selected':''}>From the last page backwards</option></select></div>
@@ -359,6 +377,7 @@ function bindSetup(){const list=$('#memList');
       if(t.dataset.pst)p.st=t.value;else{const v=Math.min(n,Math.max(1,+t.value||1));if(t.dataset.pa)p.a=v;else p.e=v;if(p.e<p.a){if(t.dataset.pa)p.e=p.a;else p.a=p.e}}MEMOPEN.add(s);rerow(s)});
     const sf=$('#sf');if(sf)sf.oninput=()=>{const q=sf.value.trim().toLowerCase();list.querySelectorAll('.srow').forEach(r=>{const s=+r.dataset.s;const hit=!q||String(s)===q||SUR[s-1][1].toLowerCase().includes(q)||SUR[s-1][0].includes(q)||norm(SUR[s-1][0]).includes(norm(q));r.hidden=!hit});
       list.querySelectorAll('details.jz').forEach(d=>{const any=[...d.querySelectorAll('.srow')].some(r=>!r.hidden);d.hidden=!any;if(q&&any)d.open=true})}}
+  const ls=$('#laySel');if(ls)ls.onchange=e=>{switchLayout(e.target.value);const sm=$('#memSum');if(sm)sm.innerHTML=memSummary();toast('Mushaf changed')};
   const ap=$('#applySetup');if(!ap)return;
   ap.onclick=()=>{S.perDay=+$('#perDay').value;S.cap=+$('#cap').value;S.order=$('#order').value;applySetup();toast('Plan saved');R.today();window.scrollTo(0,0)}}
 function memAyahs(){const set=new Set();memParts().forEach(p=>partIds(p).forEach(i=>set.add(i)));(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>set.add(i)));return [...set].sort((a,b)=>a-b)}
@@ -390,22 +409,21 @@ function ayahHTML(i,mode){
     return `<span class="ayah" data-a="${i}">${first}<span class="hid"></span> ${num}</span> `}
   return `<span class="ayah${selAyah===i?' sel':''}" data-a="${i}">${TOK[i].map(w=>renderWord(w,opt)).join(' ')} ${num}</span> `}
 R.mushaf=function(){
-  const p=Math.min(604,Math.max(1,S.cur||1));const ids=PAGES[p];const app=$('#app');const o=S.pages[p];
+  const p=Math.min(LAY.n,Math.max(1,S.cur||1));S.cur=p;const ids=PAGES[p];const app=$('#app');const o=S.pages[p];
   const status=!o?'<span class="pill">not in your plan</span>':o.st==='revive'?'<span class="pill red">to revive</span>':`<span class="pill ${o.s<=1?'amber':o.s>=4?'green':''}">strength ${o.s}/7 · next ${o.due<=today()?'today':'in '+(o.due-today())+' d'}</span>`;
-  let body='';
-  ids.forEach(i=>{const a=Q.a[i];if(a[1]===1){body+=`<div class="shead"><span class="n">سورة ${esc(SUR[a[0]-1][0])}</span><span class="tiny muted">${a[0]}. ${esc(SUR[a[0]-1][1])} · ${SUR[a[0]-1][2]} ayat</span></div>`;if(a[0]!==1&&a[0]!==9)body+=`<div class="basm">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`}
-    body+=ayahHTML(i,S.mode)});
+  const body=pageHTML(p);
   const surOpts=SUR.map((s,k)=>`<option value="${k+1}">${k+1}. ${esc(s[1])}</option>`).join('');
   const firstS=Q.a[ids[0]][0];
   app.innerHTML=`<div class="stack" style="padding-top:12px">
-   <div class="pagebar"><button class="sm" id="next" aria-label="Next page">‹ ${p<604?p+1:''}</button>
-     <div class="row"><select id="sur" aria-label="Go to surah">${surOpts}</select><select id="juz" aria-label="Go to juz">${Array.from({length:30},(_,i)=>`<option value="${i+1}" ${pageJuz(p)===i+1?'selected':''}>Juz ${i+1}</option>`).join('')}</select><input id="pg" type="number" inputmode="numeric" min="1" max="604" value="${p}" style="width:76px" aria-label="Page number"></div>
+   <div class="pagebar"><button class="sm" id="next" aria-label="Next page">‹ ${p<LAY.n?p+1:''}</button>
+     <div class="row"><select id="sur" aria-label="Go to surah">${surOpts}</select><select id="juz" aria-label="Go to juz">${Array.from({length:30},(_,i)=>`<option value="${i+1}" ${pageJuz(p)===i+1?'selected':''}>Juz ${i+1}</option>`).join('')}</select><input id="pg" type="number" inputmode="numeric" min="1" max="${LAY.n}" value="${p}" style="width:76px" aria-label="Page number"></div>
      <button class="sm" id="prev" aria-label="Previous page">${p>1?p-1:''} ›</button></div>
-   <div class="row" style="justify-content:space-between"><span class="small"><b>Page ${p}</b> · Juz ${pageJuz(p)}</span>${status}</div>
+   <div class="row small">${layoutSelectHTML()}</div>
+   <div class="row" style="justify-content:space-between"><span class="small"><b>Page ${p}</b> · Juz ${pageJuz(p)} · <span class="ar">${[...new Set(ids.map(i=>Q.a[i][0]))].map(x=>esc(SUR[x-1][0])).join('، ')}</span></span>${status}</div>
    <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
    <div class="row small"><button class="sm" id="tColor" aria-pressed="${S.color}">Colour ذ ز ظ ض ث س ص</button><button class="sm" id="tWf" aria-pressed="${S.markwf}">Mark و/ف words</button><button class="sm" id="tBig" aria-pressed="${S.big}">Large text</button></div>
    ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button><span class="tiny muted">Recite the ayah first, then reveal.</span></div>':S.mode==='hide'?'<p class="tiny muted" style="margin:0">Tap an ayah to check it.</p>':''}
-   <article class="paper"><div class="mus${S.big?' big':''}" lang="ar" id="mus">${body}</div></article>
+   <article class="paper mp"><div class="mus lay${LAY.script==='i'?' ip':''}${S.big?' big':''}" lang="ar" dir="rtl" id="mus">${body}</div></article>
    ${S.color?`<div class="legend">${Object.entries(LCLS).map(([l,c])=>`<span><span class="${c} ar" style="font-size:18px;font-weight:700">${l}</span></span>`).join('')}<span>tap Letters tab to practise</span></div>`:''}
    ${pageActions(p)}
    <section class="card" aria-labelledby="vc"><h2 id="vc">Check my recitation</h2>
@@ -417,10 +435,12 @@ R.mushaf=function(){
    </section>
   </div>`;
   $('#sur').value=firstS;
-  const setP=n=>{S.cur=Math.min(604,Math.max(1,n));revealed=new Set();reps=0;selAyah=null;save();R.mushaf();window.scrollTo(0,0)};
+  fitPage();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitPage);
+  $('#laySel').onchange=e=>{switchLayout(e.target.value);R.mushaf();toast('Mushaf changed. Your plan now follows its pages.')};
+  const setP=n=>{S.cur=Math.min(LAY.n,Math.max(1,n));revealed=new Set();reps=0;selAyah=null;save();R.mushaf();window.scrollTo(0,0)};
   $('#next').onclick=()=>setP(p+1);$('#prev').onclick=()=>setP(p-1);
   $('#pg').onchange=e=>setP(+e.target.value||1);
-  $('#sur').onchange=e=>{const s=+e.target.value;setP(Q.a.find(a=>a[0]===s)[3])};
+  $('#sur').onchange=e=>{const s=+e.target.value;setP(AP[aIndex(s,1)])};
   $('#juz').onchange=e=>setP(JUZP[+e.target.value][0]);
   document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.mushaf()});
   $('#tColor').onclick=()=>{S.color=!S.color;save();R.mushaf()};
@@ -428,14 +448,14 @@ R.mushaf=function(){
   $('#tBig').onclick=()=>{S.big=!S.big;save();R.mushaf()};
   const rn=$('#revealNext');if(rn)rn.onclick=()=>{const n=ids.find(i=>!revealed.has(i));if(n!==undefined){revealed.add(n);refreshMus(ids)}else toast('Page complete')};
   const ha=$('#hideAll');if(ha)ha.onclick=()=>{revealed=new Set();refreshMus(ids)};
-  $('#mus').onclick=e=>{const el=e.target.closest('.ayah');if(!el)return;const i=+el.dataset.a;
+  $('#mus').onclick=e=>{const el=e.target.closest('[data-a]');if(!el)return;const i=+el.dataset.a;
     if(S.mode==='hide'||S.mode==='test'){revealed.has(i)?revealed.delete(i):revealed.add(i);refreshMus(ids);return}
     ayahSheet(i)};
   $('#check').onclick=()=>doCheck();bindMic();$('#clear').onclick=()=>{$('#said').value='';$('#result').innerHTML=''};
   $('#from').onchange=()=>{const f=+$('#from').value;if(+$('#to').value<f)$('#to').value=f};
   bindPageActions(p);
 };
-function refreshMus(ids){let body='';ids.forEach(i=>{const a=Q.a[i];if(a[1]===1){body+=`<div class="shead"><span class="n">سورة ${esc(SUR[a[0]-1][0])}</span><span class="tiny muted">${a[0]}. ${esc(SUR[a[0]-1][1])} · ${SUR[a[0]-1][2]} ayat</span></div>`;if(a[0]!==1&&a[0]!==9)body+=`<div class="basm">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`}body+=ayahHTML(i,S.mode)});$('#mus').innerHTML=body}
+function refreshMus(){$('#mus').innerHTML=pageHTML(S.cur);fitPage()}
 function pageActions(p){const o=S.pages[p];
   if(o&&o.st==='revive')return `<section class="card"><h3>Reviving this page</h3>
    <ol class="small"><li>Read the page 3 times looking, slowly, with correct letters (Colour mode helps).</li><li>Ayah by ayah: read once, then recite it without looking 3 times. Join it to the previous ayah.</li><li>Switch to <b>Test</b> and recite the whole page from memory. Use the voice check below.</li><li>Link: recite the last ayah of the previous page and the first ayah of this one together.</li></ol>
@@ -847,7 +867,7 @@ const aIndex=(s,a)=>{if(!AIDX){AIDX=new Map();Q.a.forEach((x,i)=>AIDX.set(x[0]+'
 function rukuEnd(i){const r=Q.a[i][7];let j=i;while(j+1<Q.a.length&&Q.a[j+1][7]===r&&Q.a[j+1][0]===Q.a[i][0])j++;return Q.a[j][1]}
 function qIds(q){const a=aIndex(q.s,q.a),b=aIndex(q.s,q.e);const out=[];for(let i=a;i<=b;i++)out.push(i);return out}
 function qName(q){return `${SUR[q.s-1][1]} ${q.s}:${q.a}–${q.e}`}
-function qPages(){const ps=new Set();(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>ps.add(Q.a[i][3])));return ps}
+function qPages(){const ps=new Set();(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>ps.add(AP[i])));return ps}
 function markQirathPages(){const t=today();let k=0;qPages().forEach(p=>{const o=S.pages[p];if(!o||o.st==='revive')S.pages[p]={st:'active',s:3,due:t+1+(k++%7),last:0}})}
 function qirathToMem(){if(S.qm||!S.qirath)return;const by={};S.qirath.forEach(q=>{(by[q.s]=by[q.s]||[]).push([q.a,q.e])});
   Object.keys(by).forEach(k=>{const s=+k;const iv=by[k].sort((x,y)=>x[0]-y[0]);const merged=[];iv.forEach(([a,e])=>{const l=merged[merged.length-1];if(l&&a<=l[1]+1)l[1]=Math.max(l[1],e);else merged.push([a,e])});
@@ -876,7 +896,7 @@ R.qirath=function(){const app=$('#app');if(!S.qirath)migrateQirath();
   let body='';ids.forEach(i=>{body+=ayahHTML(i,S.mode)});
   app.innerHTML=`<div class="stack" style="padding-top:12px">
    <div class="row" style="justify-content:space-between"><button class="sm" id="qback">‹ All passages</button><span class="small"><b>${esc(qName(q))}</b></span></div>
-   <div class="row small"><label for="qend">Passage ends at ayah</label><select id="qend">${Array.from({length:n-q.a+1},(_,k)=>q.a+k).map(v=>`<option ${v===q.e?'selected':''}>${v}</option>`).join('')}</select><button class="sm" id="qopen">Open in mushaf (p ${Q.a[ids[0]][3]})</button></div>
+   <div class="row small"><label for="qend">Passage ends at ayah</label><select id="qend">${Array.from({length:n-q.a+1},(_,k)=>q.a+k).map(v=>`<option ${v===q.e?'selected':''}>${v}</option>`).join('')}</select><button class="sm" id="qopen">Open in mushaf (p ${AP[ids[0]]})</button></div>
    <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
    ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button></div>':''}
    <article class="paper"><div class="mus${S.big?' big':''}" lang="ar" id="mus">${body}</div></article>
@@ -885,7 +905,7 @@ R.qirath=function(){const app=$('#app');if(!S.qirath)migrateQirath();
   </div>`;
   $('#qback').onclick=()=>{QV.cur=null;R.qirath()};
   $('#qend').onchange=e=>{q.e=+e.target.value;markQirathPages();save();R.qirath()};
-  $('#qopen').onclick=()=>{S.cur=Q.a[ids[0]][3];save();go('mushaf')};
+  $('#qopen').onclick=()=>{S.cur=AP[ids[0]];save();go('mushaf')};
   document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.qirath()});
   const rn=$('#revealNext');if(rn)rn.onclick=()=>{const x=ids.find(i=>!revealed.has(i));if(x!==undefined){revealed.add(x);refreshIds(ids)}else toast('Passage complete')};
   const ha=$('#hideAll');if(ha)ha.onclick=()=>{revealed=new Set();refreshIds(ids)};
@@ -901,6 +921,50 @@ function checkCardHTML(ids){return `<section class="card" aria-labelledby="vc"><
      <div class="row"><button class="primary" id="micBtn" aria-pressed="false">🎙 Recite</button><button id="check">Check</button><button class="sm ghost" id="clear">Clear</button></div>
      <div id="result"></div></section>`}
 function bindCheck(){$('#check').onclick=()=>doCheck();bindMic();$('#clear').onclick=()=>{$('#said').value='';$('#result').innerHTML=''};$('#from').onchange=()=>{const f=+$('#from').value;if(+$('#to').value<f)$('#to').value=f}}
+
+
+/* ================= MUSHAF LAYOUTS (exact pages and lines) ================= */
+const LAYOUTS={madani:{t:'Madani · 15 lines · 604 pages',script:'u'},ip15:{t:'Indo-Pak · 15 lines (Hafizi) · 610 pages',script:'i'},ip16:{t:'Indo-Pak · 16 lines · 548 pages',script:'i'}};
+let LAYD=null,LAY=null,AP=null,WU=null,WI=null;
+function buildLayout(name){if(!LAYOUTS[name])name='madani';const d=LAYD.L[name];const L=d.lines,n=d.n;
+  if(!WU){WU=LAYD.w.map(x=>x.split(' '));WI=LAYD.wi.map(x=>x.split(' '))}
+  const lines=Array.from({length:n*L},()=>[]);AP=new Int16Array(Q.a.length);
+  d.runs.forEach((r,i)=>{let k=0;r.forEach(([g,c])=>{for(let x=0;x<c;x++){lines[g].push([i,k]);k++}});AP[i]=Math.floor(r[0][0]/L)+1});
+  PAGES=Array.from({length:n+1},()=>[]);
+  for(let p=1;p<=n;p++){const seen=new Set();for(let l=0;l<L;l++)lines[(p-1)*L+l].forEach(([i])=>{if(!seen.has(i)){seen.add(i);PAGES[p].push(i)}})}
+  JUZP=Array.from({length:31},()=>[]);for(let p=1;p<=n;p++){if(PAGES[p].length)JUZP[Q.a[PAGES[p][0]][2]].push(p)}
+  LAY={name,L,n,lines,script:LAYOUTS[name].script}}
+function switchLayout(name){if(!LAY||name===LAY.name)return;const oldAP=AP,oldPages=S.pages,cur=PAGES[S.cur]&&PAGES[S.cur][0];
+  buildLayout(name);S.layout=name;const np={};
+  for(let p=1;p<=LAY.n;p++){let rev=false,act=null;new Set(PAGES[p].map(i=>oldAP[i])).forEach(op=>{const o=oldPages[op];if(!o)return;if(o.st==='revive')rev=true;else if(!act)act={...o};else{act.s=Math.min(act.s,o.s);act.due=Math.min(act.due,o.due)}});
+    if(rev)np[p]={st:'revive'};else if(act)np[p]=act}
+  S.pages=np;if(cur!==undefined)S.cur=AP[cur];revealed=new Set();save()}
+function wordText(i,k){const arr=LAY.script==='i'?WI[i]:WU[i];return (arr[k]||'').replace(/ /g,' ')}
+function pageHTML(p){const L=LAY.L,out=[];const base=(p-1)*L;
+  const firstItem=g=>{for(let x=g;x<Math.min(LAY.lines.length,g+L*2);x++)if(LAY.lines[x].length)return LAY.lines[x][0];return null};
+  const opt={color:S.color,wf:S.markwf,hint:S.mode==='hint'};
+  for(let l=0;l<L;l++){const items=LAY.lines[base+l];
+    if(!items.length){const nx=firstItem(base+l+1);let cls='blank',html='';
+      if(nx&&nx[1]===0&&Q.a[nx[0]][1]===1){const s=Q.a[nx[0]][0];let gap=0;for(let x=base+l+1;x<LAY.lines.length&&!LAY.lines[x].length;x++)gap++;
+        const needB=s!==1&&s!==9;
+        if(needB&&gap===0){cls='basm';let hd=true;for(let x=base+l-1;x>=base;x--){if(!LAY.lines[x].length){hd=false}break}if(l===0){const pv=base-1;hd=!(pv>=0&&!LAY.lines[pv].length)}html=(hd?`<span class="sn">سورة ${esc(SUR[s-1][0])}</span>`:'')+(LAY.script==='i'?'بِسۡمِ اللّٰہِ الرَّحۡمٰنِ الرَّحِیۡمِ':'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ')}
+        else if((needB&&gap===1)||(!needB&&gap===0)){cls='shead';html=`<span class="n">سورة ${esc(SUR[s-1][0])}</span>`}}
+      out.push(`<div class="ln ${cls}">${html}</div>`);continue}
+    let h='';items.forEach(([i,k])=>{const words=WU[i];const hidden=(S.mode==='hide'||S.mode==='test')&&!revealed.has(i);const sel=selAyah===i?' sel':'';
+      if(k>=words.length){h+=`<span class="w anum${sel}" data-a="${i}">${LAY.script==='i'?'۝'+AD(Q.a[i][1]):'﴿'+AD(Q.a[i][1])+'﴾'}</span>`;return}
+      const t=wordText(i,k);
+      if(hidden&&!(S.mode==='test'&&k===0))h+=`<span class="w hw" data-a="${i}">${esc(t)}</span>`;
+      else h+=`<span class="w${sel}${hidden?' anchor':''}" data-a="${i}">${renderWord(t,hidden?{}:opt)}</span>`});
+    out.push(`<div class="ln">${h}</div>`)}
+  return out.join('')}
+function fitPage(){const m=$('#mus');if(!m||!m.classList.contains('lay'))return;const pr=m.parentElement;const cs=getComputedStyle(pr);const W=pr.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);if(!W||W<50)return;
+  m.style.fontSize='';m.classList.add('measure');let mx=1;const ws=[];
+  m.querySelectorAll('.ln').forEach(ln=>{const w=ln.scrollWidth;ws.push(w);if(!ln.classList.contains('blank')&&!ln.classList.contains('shead')&&!ln.classList.contains('basm'))mx=Math.max(mx,w)});
+  const base=parseFloat(getComputedStyle(m).fontSize)||24;const f=Math.max(12,Math.min(base*1.25,base*(W-4)/mx));
+  m.style.fontSize=f+'px';m.classList.remove('measure');
+  m.querySelectorAll('.ln').forEach((ln,k)=>{ln.classList.toggle('short',ws[k]*(f/base)<W*.72&&ln.querySelector('.w'))})}
+window.addEventListener('resize',()=>{clearTimeout(window.__ft);window.__ft=setTimeout(fitPage,150)});
+function layoutSelectHTML(){return `<select id="laySel" aria-label="Mushaf layout">${Object.entries(LAYOUTS).map(([k,v])=>`<option value="${k}" ${LAY&&LAY.name===k?'selected':''}>${v.t}</option>`).join('')}</select>`}
 
 
 /* ================= LIVE MICROPHONE (standalone app) ================= */
