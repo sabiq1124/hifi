@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hifz Revival</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hifz">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E6B5E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+/* Layout: one-column phone app, sticky top bar, fixed bottom tab bar; mushaf page sits on a "paper" surface. */
+:root{
+  --bg:#EEF3F1; --surface:#FFFFFF; --paper:#FFFDF8; --ink:#13232E; --muted:#5A6B70; --line:#D6E0DE;
+  --accent:#0E6B5E; --accent-ink:#FFFFFF; --accent-soft:#DCEEE9; --gold:#A86A12; --gold-soft:#F6E9D2;
+  --danger:#B42318; --danger-soft:#FBE4E1; --ok:#1C7A3B; --ok-soft:#DDF2E3; --warn:#9A5B00; --warn-soft:#FBEBCF;
+  --l-dh:#1D5FD1; --l-z:#0F8A8A; --l-zh:#7A3FC2; --l-d:#C0262D; --l-th:#D06A00; --l-s:#2C8A2C; --l-sd:#8A5A2B;
+  --s0:#E4E9E8; --s1:#F2C6BE; --s2:#F3DDA9; --s3:#BFE0C5; --s4:#7FC195; --s5:#2F8F55;
+  --f-quran:"Amiri Quran","Noto Naskh Arabic","Geeza Pro",serif;
+  --f-ar:"Noto Naskh Arabic","Geeza Pro",serif;
+  --f-ui:"Atkinson Hyperlegible",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --f-ml:"Noto Sans Malayalam","Malayalam Sangam MN",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1517; --surface:#162125; --paper:#1A2428; --ink:#E6EEEC; --muted:#97A8AA; --line:#2A3A3E;
+  --accent:#4DBFAC; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
+  --danger:#F2897C; --danger-soft:#3E1F1C; --ok:#6CCB8C; --ok-soft:#1A3624; --warn:#F0B45A; --warn-soft:#3A2B12;
+  --l-dh:#7FA9FF; --l-z:#4FD1CF; --l-zh:#C49BFF; --l-d:#FF8A8F; --l-th:#FFB061; --l-s:#7FD67F; --l-sd:#D9A877;
+  --s0:#26343A; --s1:#5A2E2A; --s2:#5C4A20; --s3:#2E5A3A; --s4:#3C8A5B; --s5:#5FD18C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1517; --surface:#162125; --paper:#1A2428; --ink:#E6EEEC; --muted:#97A8AA; --line:#2A3A3E;
+  --accent:#4DBFAC; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
+  --danger:#F2897C; --danger-soft:#3E1F1C; --ok:#6CCB8C; --ok-soft:#1A3624; --warn:#F0B45A; --warn-soft:#3A2B12;
+  --l-dh:#7FA9FF; --l-z:#4FD1CF; --l-zh:#C49BFF; --l-d:#FF8A8F; --l-th:#FFB061; --l-s:#7FD67F; --l-sd:#D9A877;
+  --s0:#26343A; --s1:#5A2E2A; --s2:#5C4A20; --s3:#2E5A3A; --s4:#3C8A5B; --s5:#5FD18C; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px calc(96px + env(safe-area-inset-bottom,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand b{font-size:18px;letter-spacing:.2px}
+.brand .ar{font-family:var(--f-ar);font-size:20px;color:var(--accent)}
+.sync{font-size:12px;color:var(--muted);white-space:nowrap}
+h1,h2,h3{text-wrap:balance;margin:0}
+h2{font-size:20px}
+h3{font-size:16px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.tiny{font-size:12px}
+.ml{font-family:var(--f-ml);font-size:15px;line-height:1.7}
+.ar{font-family:var(--f-ar);direction:rtl}
+button,.btn{font:inherit;font-size:15px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;cursor:pointer;min-height:42px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button:focus-visible,.btn:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.primary,.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+button.ghost{background:transparent}
+button.sm{min-height:34px;padding:5px 10px;font-size:14px}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700}
+button:disabled{opacity:.5;cursor:default}
+select,input,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:42px;max-width:100%}
+textarea{width:100%;min-height:110px;font-family:var(--f-ar);font-size:22px;line-height:1.8;direction:rtl}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;border-radius:0;flex:1 1 auto;min-height:38px;font-size:14px;background:var(--surface)}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--accent-soft);color:var(--ink)}
+.pill.red{background:var(--danger-soft)}.pill.amber{background:var(--warn-soft)}.pill.green{background:var(--ok-soft)}.pill.gold{background:var(--gold-soft)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs .in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 9px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:700}
+nav.tabs a .g{font-family:var(--f-ar);font-size:20px;line-height:1.1}
+nav.tabs a[aria-current="page"]{color:var(--accent)}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.stat .n{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px;color:var(--muted)}
+.task{display:flex;gap:12px;align-items:flex-start;padding-block:10px;border-top:1px solid var(--line)}
+.task:first-of-type{border-top:0}
+.task .ic{width:38px;height:38px;flex:0 0 38px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-family:var(--f-ar);font-size:18px;color:var(--accent);font-weight:700}
+.task .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:4px 10px;min-height:32px;border-radius:999px}
+.chip.due{border-color:var(--warn)}
+.chip.weak{border-color:var(--danger)}
+/* page map */
+.map{display:flex;flex-direction:column;gap:3px}
+.mrow{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:center}
+.mrow .j{font-size:11px;color:var(--muted);text-align:end;font-variant-numeric:tabular-nums}
+.cells{display:grid;grid-template-columns:repeat(20,1fr);gap:2px}
+.cell{aspect-ratio:1;border-radius:2px;background:var(--s0);border:0;padding:0;min-height:0;max-width:100%}
+.cell.r{background:var(--s1)}.cell.a0,.cell.a1{background:var(--s2)}.cell.a2,.cell.a3{background:var(--s3)}.cell.a4,.cell.a5{background:var(--s4)}.cell.a6,.cell.a7{background:var(--s5)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:4px;vertical-align:-1px}
+/* mushaf */
+.pagebar{display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;min-width:0}
+.mus{font-family:var(--f-quran);direction:rtl;text-align:justify;text-align-last:center;font-size:27px;line-height:2.25;word-spacing:2px}
+.mus.big{font-size:31px}
+.ayah{border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ayah:hover{background:var(--accent-soft)}
+.ayah.sel{background:var(--gold-soft)}
+.anum{font-family:var(--f-quran);color:var(--accent);font-size:.85em;padding-inline:2px}
+.shead{display:flex;flex-direction:column;align-items:center;gap:2px;margin-block:6px 4px;border-block:1px solid var(--line);padding-block:6px}
+.shead .n{font-family:var(--f-ar);font-size:20px;font-weight:700;color:var(--accent)}
+.basm{font-family:var(--f-quran);font-size:24px;text-align:center;direction:rtl}
+.hid{display:inline-block;min-width:64px;height:.9em;vertical-align:middle;border-radius:6px;background:repeating-linear-gradient(90deg,var(--line) 0 10px,transparent 10px 14px)}
+.anchor{color:var(--muted)}
+.c-dh{color:var(--l-dh)}.c-z{color:var(--l-z)}.c-zh{color:var(--l-zh)}.c-d{color:var(--l-d)}.c-th{color:var(--l-th)}.c-s{color:var(--l-s)}.c-sd{color:var(--l-sd)}
+.wf{color:var(--gold);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:10px}
+.gradebar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.gradebar button{flex-direction:column;gap:0;font-size:14px;padding:6px 4px}
+.gradebar button small{font-size:11px;color:var(--muted);font-weight:400}
+.g0{border-color:var(--danger)}.g1{border-color:var(--warn)}.g2{border-color:var(--ok)}.g3{border-color:var(--accent)}
+/* diff */
+.diff{font-family:var(--f-ar);direction:rtl;font-size:22px;line-height:2.1}
+.diff span{padding-inline:3px;border-radius:5px}
+.d-ok{color:var(--ink)}
+.d-miss{background:var(--danger-soft);color:var(--danger);text-decoration:underline dotted}
+.d-sub{background:var(--warn-soft);color:var(--warn)}
+.d-wf{background:var(--gold-soft);color:var(--gold);font-weight:700}
+.d-extra{color:var(--muted);text-decoration:line-through}
+.d-sub small,.d-wf small{font-size:13px;opacity:.85}
+/* wa fa quiz */
+.qbox{font-family:var(--f-quran);direction:rtl;font-size:28px;line-height:2.2;text-align:center}
+.qbox .ctx{color:var(--muted);font-size:22px;display:block;line-height:2}
+.gap{display:inline-block;min-width:1.4em;border-bottom:3px solid var(--gold);color:var(--gold);text-align:center}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answers button{font-family:var(--f-ar);font-size:34px;min-height:70px}
+.answers button.right{background:var(--ok-soft);border-color:var(--ok)}
+.answers button.wrong{background:var(--danger-soft);border-color:var(--danger)}
+.hit{background:var(--gold-soft);border-radius:6px}
+.why{white-space:pre-wrap}
+/* makharij */
+.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.lcard{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);min-width:0}
+.lcard .big{font-family:var(--f-ar);font-size:52px;line-height:1.1;text-align:center}
+.attr{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;font-size:14px}
+.attr dt{color:var(--muted)}
+.attr dd{margin:0}
+.pairs{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 10px;align-items:center}
+.pairs .w{font-family:var(--f-quran);font-size:26px;direction:rtl;text-align:center}
+.pairs .m{font-size:12px;color:var(--muted);text-align:center}
+.wordlist{display:flex;flex-wrap:wrap;gap:8px}
+.wordlist .wd{font-family:var(--f-quran);font-size:26px;direction:rtl;border:1px solid var(--line);border-radius:10px;padding:2px 12px;background:var(--paper);display:flex;flex-direction:column;align-items:center}
+.wordlist .wd small{font-family:var(--f-ui);font-size:11px;color:var(--muted);direction:ltr}
+.feedback{border-radius:10px;padding:10px 12px;font-size:15px}
+.feedback.okk{background:var(--ok-soft)}.feedback.bad{background:var(--danger-soft)}.feedback.mid{background:var(--warn-soft)}
+details{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 14px}
+details>summary{cursor:pointer;padding:12px 0;font-weight:700;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";float:right;color:var(--muted)}
+details[open]>summary::after{content:"–"}
+details>div{padding-bottom:14px;display:flex;flex-direction:column;gap:8px}
+ol,ul{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px}
+.juzlist{display:flex;flex-direction:column;gap:6px}
+.juzrow{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:center}
+.juzrow .seg button{font-size:13px;min-height:34px;padding:4px 6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;z-index:40;max-width:90vw}
+.sheet{position:fixed;inset:auto 0 0 0;z-index:35;background:var(--surface);border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -8px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:10px;max-height:80vh;overflow:auto}
+.sheet .in{max-width:720px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:10px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:34}
+.loading{padding:40px 0;text-align:center;color:var(--muted)}
+.bar{height:8px;border-radius:99px;background:var(--s0);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.seqline{font-family:var(--f-quran);direction:rtl;font-size:30px;display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px}
+.seqline i{color:var(--muted);font-style:normal}
+.qrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;text-align:start;width:100%;justify-content:stretch}
+.qrow .qn{font-size:20px}.qrow .qr{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+.srow{display:flex;flex-direction:column;gap:6px;padding-block:8px;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0}.srow .seg{flex:1 1 220px}.parts{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:10px;background:var(--bg)}
+details.jz>div{gap:0}
+@media (max-width:420px){.mus{font-size:24px}.mus.big{font-size:28px}.qbox{font-size:25px}.stats .n{font-size:21px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top wrap">
+  <div class="brand"><span class="ar">حِفْظ</span><b>Hifz Revival</b></div>
+  <span class="sync" id="sync">Saved on this phone</span>
+</header>
+
+<main class="wrap" id="app"><div class="loading">Loading the Qur'an text…</div></main>
+
+<nav class="tabs" aria-label="Sections"><div class="in">
+  <a href="#today" data-tab="today"><span class="g">◉</span>Today</a>
+  <a href="#mushaf" data-tab="mushaf"><span class="g">مُصحف</span>Mushaf</a>
+  <a href="#wafa" data-tab="wafa"><span class="g">و/ف</span>Wa / Fa</a>
+  <a href="#makharij" data-tab="makharij"><span class="g">ذ ظ ض</span>Letters</a>
+  <a href="#guide" data-tab="guide"><span class="g">؟</span>Method</a>
+</div></nav>
+<div id="overlay"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------------- utilities ---------------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const AD=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const DIAC=/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g;
+const MARKS=/^[ؐ-ًؚ-ٰٟۖ-ۭـ]+/;
+const LETTER=/[ء-يٱ]/;
+function norm(w){return w.replace(DIAC,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[^ء-ي]/g,'')}
+const today=()=>{const d=new Date();return Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/86400000)};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let toastT;function toast(m){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2200)}
+
+/* ---------------- state ---------------- */
+const LS='hifz-revival-v1';
+const DEF=()=>({v:1,setup:false,updated:0,juz:Object.fromEntries(Array.from({length:30},(_,i)=>[i+1,i>=16?'forgot':'none'])),
+  pages:{},perDay:2,cap:20,order:'asc',cur:1,mode:'read',color:true,markwf:true,big:false,
+  wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{}});
+let S=DEF();
+try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);if(!o.mem){o.mem={};o.setup=false}S=Object.assign(DEF(),o)}}catch(e){}
+let dbDoc=null,saveT=null;
+function save(){S.updated=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+  clearTimeout(saveT);saveT=setTimeout(async()=>{if(!dbDoc)return;try{await dbDoc.set({state:JSON.stringify(S),updated:S.updated});setSync('Saved to your account')}catch(e){setSync('Saved on this phone only')}},1200)}
+function setSync(t){const el=$('#sync');if(el)el.textContent=t}
+function logDay(k,n=1){const d=today();S.log[d]=S.log[d]||{};S.log[d][k]=(S.log[d][k]||0)+n}
+
+/* ---------------- data ---------------- */
+let Q=null,SUR=[],PAGES=[],JUZP=[],TOK=[],CONF=null,FREQ=null,PAIRS=null;
+async function loadData(){
+  const el=document.getElementById('qdata');if(el&&el.textContent.length>1000){Q=JSON.parse(el.textContent)}else{const r=await fetch('quran.json');Q=await r.json()}SUR=Q.s;
+  PAGES=Array.from({length:605},()=>[]);JUZP=Array.from({length:31},()=>[]);
+  Q.a.forEach((a,i)=>{PAGES[a[3]].push(i)});
+  for(let p=1;p<=604;p++){const j=Q.a[PAGES[p][0]][2];JUZP[j].push(p)}
+  TOK=Q.a.map(a=>a[5].split(' '));
+  FREQ=new Set();TOK.forEach(t=>t.forEach(w=>{const n=norm(w);if(n)FREQ.add(n)}));
+}
+const pageJuz=p=>Q.a[PAGES[p][0]][2];
+const isConf=n=>n.length>=3&&(n[0]==='و'||n[0]==='ف')&&FREQ.has((n[0]==='و'?'ف':'و')+n.slice(1));
+const ref=i=>`${SUR[Q.a[i][0]-1][1]} ${Q.a[i][0]}:${Q.a[i][1]}`;
+
+/* mutashabihat: same surrounding words, only و/ف differs */
+function buildPairs(){
+  if(PAIRS)return PAIRS;const m=new Map();
+  TOK.forEach((t,ai)=>{const ws=[];t.forEach((w,ti)=>{if(LETTER.test(w))ws.push([ti,norm(w)])});
+    ws.forEach(([ti,n],k)=>{if(!isConf(n))return;const ctx=[];for(let x=k;x<=k+3;x++){if(x<0||x>=ws.length)continue;ctx.push(x===k?'*'+n.slice(1):ws[x][1])}
+      if(ctx.length<4)return;const key=ctx.join(' ');if(!m.has(key))m.set(key,{w:[],f:[]});m.get(key)[n[0]==='و'?'w':'f'].push([ai,ti])})});
+  PAIRS=[];for(const[k,v]of m)if(v.w.length&&v.f.length)PAIRS.push(v);
+  return PAIRS}
+
+/* ---------------- spaced repetition (pages) ---------------- */
+const IV=[1,1,2,4,7,15,30,60];
+function revivePages(){const list=Object.keys(S.pages).map(Number).filter(p=>S.pages[p].st==='revive').sort((a,b)=>a-b);if(S.order==='desc')list.reverse();return list}
+function dueToday(){const t=today();return Object.keys(S.pages).map(Number).filter(p=>S.pages[p].st==='active'&&S.pages[p].due<=t)
+  .sort((a,b)=>(S.pages[a].s-S.pages[b].s)||(S.pages[a].due-S.pages[b].due)||a-b)}
+function grade(p,g){const t=today();let o=S.pages[p];if(!o||o.st!=='active')o={st:'active',s:1,due:t};
+  if(g===0)o.s=0;else if(g===1)o.s=Math.max(1,o.s-1);else if(g===2)o.s=Math.min(o.s+1,7);else o.s=Math.min(o.s+2,7);
+  o.due=t+(g<=1?1:IV[o.s]);o.last=t;S.pages[p]=o;logDay('rev');save()}
+function markRevived(p){S.pages[p]={st:'active',s:1,due:today()+1,last:today()};logDay('revive');save()}
+function streak(){let d=today(),n=0;if(!S.log[d])d--;while(S.log[d]){n++;d--}return n}
+
+/* ---------------- routing ---------------- */
+const TABS=['today','mushaf','wafa','makharij','guide','qirath'];
+function route(){const h=location.hash.replace('#','');const tab=TABS.includes(h)?h:'today';
+  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.tab===(tab==='qirath'?'today':tab)?'page':'false'));
+  closeSheet();R[tab]();window.scrollTo(0,0)}
+window.addEventListener('hashchange',()=>{if(Q)route()});
+function go(tab){if(location.hash==='#'+tab)route();else location.hash=tab}
+const R={};
+
+/* ================= TODAY ================= */
+R.today=function(){
+  const app=$('#app');
+  if(!S.setup){app.innerHTML=setupHTML(true);bindSetup();return}
+  const rv=revivePages(),due=dueToday(),t=today();
+  const todayRevive=rv.slice(0,S.perDay),todayDue=due.slice(0,S.cap);
+  const act=Object.values(S.pages).filter(o=>o.st==='active');
+  const strong=act.filter(o=>o.s>=4).length;
+  const total=Object.keys(S.pages).length;
+  const wfDue=Object.values(S.wf).filter(o=>o.due<=t).length;
+  const lg=S.log[t]||{};
+  const grp=GROUPS[t%GROUPS.length];if(!S.qirath)migrateQirath();const qd=qDue();
+  app.innerHTML=`<div class="stack" style="padding-top:14px">
+   <div class="stats">
+     <div class="stat"><div class="n">${act.length}<span class="tiny muted">/${total}</span></div><div class="l">pages back in revision</div></div>
+     <div class="stat"><div class="n">${strong}</div><div class="l">pages strong</div></div>
+     <div class="stat"><div class="n">${streak()}</div><div class="l">day streak</div></div>
+   </div>
+   <section class="card" aria-labelledby="tp"><div class="row" style="justify-content:space-between"><h2 id="tp">Today's plan</h2><span class="pill">${new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}</span></div>
+    <div class="task"><div class="ic">١</div><div class="body"><h3>Revision first (Manzil / Sabqi)</h3>
+      <div class="small muted">${todayDue.length?`${todayDue.length} page${todayDue.length>1?'s':''} due. Recite each from memory, then check and grade it. Weakest pages first.`:'Nothing due. Well done. Your revived pages come back here on schedule.'}${due.length>S.cap?` <b>${due.length-S.cap} more overdue</b> wait for tomorrow.`:''} ${lg.rev?`<span class="pill green">${lg.rev} graded today</span>`:''}</div>
+      <div class="chips">${todayDue.map(p=>`<button class="chip ${S.pages[p].s<=1?'weak':'due'}" data-open="${p}">p ${p}</button>`).join('')}</div></div></div>
+    <div class="task"><div class="ic">📿</div><div class="body"><h3>Qirath for prayer</h3>
+      <div class="small muted">${qd.length?`Recite ${Math.min(2,qd.length)} of your prayer passages today, in ṣalāh if you can, then grade them.`:'No passage due today.'} ${lg.qirath?`<span class="pill green">${lg.qirath} done today</span>`:''}</div>
+      <div class="chips">${qd.slice(0,2).map(([q,n])=>`<button class="chip due" data-qopen="${n}">${esc(qName(q))}</button>`).join('')}<button class="chip" data-go="qirath">All ${S.qirath.length} passages</button></div></div></div>
+    <div class="task"><div class="ic">٢</div><div class="body"><h3>Revive forgotten pages (Sabaq)</h3>
+      <div class="small muted">${rv.length?`${S.perDay} page${S.perDay>1?'s':''} a day. Read, repeat ayah by ayah, then recite the whole page without looking. ${rv.length} pages left to revive (about ${Math.ceil(rv.length/S.perDay)} days).`:'Everything you marked is revived. Mark more in Settings below.'} ${lg.revive?`<span class="pill green">${lg.revive} revived today</span>`:''}</div>
+      <div class="chips">${todayRevive.map(p=>`<button class="chip" data-open="${p}">p ${p} · Juz ${pageJuz(p)}</button>`).join('')}</div></div></div>
+    <div class="task"><div class="ic">و</div><div class="body"><h3>و / ف drill (10 questions)</h3>
+      <div class="small muted">${wfDue?`${wfDue} past mistakes are due again.`:'Short test on the و/ف words from your own memorised parts.'} ${lg.wf?`<span class="pill green">${lg.wf} answered today</span>`:''}</div>
+      <div class="row"><button class="primary sm" data-go="wafa">Start drill</button></div></div></div>
+    <div class="task"><div class="ic">ظ</div><div class="body"><h3>Letter practice: ${grp.title}</h3>
+      <div class="small muted">5 minutes. Use the mirror and throat test, then say the words.</div>
+      <div class="row"><button class="sm" data-mk="${grp.id}">Open practice</button></div></div></div>
+   </section>
+   <section class="card" aria-labelledby="mp"><div class="row" style="justify-content:space-between"><h2 id="mp">Your mushaf map</h2><span class="tiny muted">tap a square to open the page</span></div>
+     <div class="legend"><span><i style="background:var(--s0)"></i>not in plan</span><span><i style="background:var(--s1)"></i>to revive</span><span><i style="background:var(--s2)"></i>weak</span><span><i style="background:var(--s3)"></i>okay</span><span><i style="background:var(--s4)"></i>strong</span><span><i style="background:var(--s5)"></i>very strong</span></div>
+     <div class="map">${Array.from({length:30},(_,i)=>i+1).map(j=>`<div class="mrow"><span class="j">${j}</span><div class="cells">${JUZP[j].map(p=>{const o=S.pages[p];const c=!o?'':o.st==='revive'?'r':'a'+o.s;return `<button class="cell ${c}" data-open="${p}" aria-label="Page ${p}" title="Page ${p}"></button>`}).join('')}</div></div>`).join('')}</div>
+   </section>
+   <details><summary>Settings and what I memorised</summary><div>${setupHTML(false)}</div></details>
+  </div>`;
+  bindCommon(app);bindSetup();
+};
+function memParts(){const out=[];Object.keys(S.mem||{}).forEach(s=>(S.mem[s]||[]).forEach(p=>out.push({s:+s,a:p.a,e:p.e,st:p.st})));return out}
+function partIds(p){const a=aIndex(p.s,p.a),b=aIndex(p.s,p.e);const r=[];for(let i=a;i<=b;i++)r.push(i);return r}
+function memPageMap(){const m=new Map();memParts().forEach(p=>partIds(p).forEach(i=>{const pg=Q.a[i][3];if(p.st==='good'||!m.has(pg))m.set(pg,p.st)}));
+  if(S.qirath)qPages().forEach(pg=>m.set(pg,'good'));return m}
+function applySetup(){const t=today();const old=S.pages;S.pages={};let k=0;
+  memPageMap().forEach((st,p)=>{if(old[p]&&old[p].st==='active'){S.pages[p]=old[p];return}
+    S.pages[p]=st==='good'?{st:'active',s:3,due:t+(k++%7),last:0}:{st:'revive'}});
+  S.setup=true;save()}
+function memSummary(){const m=memPageMap();let f=0,g=0;m.forEach(v=>v==='good'?g++:f++);return `<b>${m.size}</b> pages marked (about ${(m.size/20).toFixed(1)} juz): <span class="pill red">${f} to revive</span> <span class="pill green">${g} still good</span>`}
+function surahJuz(s){return Q.a[aIndex(s,1)][2]}
+function rowHTML(s){const n=SUR[s-1][2];const parts=(S.mem[s]||[]);const whole=parts.length===1&&parts[0].a===1&&parts[0].e===n;const st=!parts.length?'none':whole?parts[0].st:'parts';
+  const inQ=(S.qirath||[]).filter(q=>q.s===s);
+  return `<div class="srow" data-s="${s}"><div class="sname"><span class="ar" style="font-size:19px">${esc(SUR[s-1][0])}</span> <span class="small">${s}. ${esc(SUR[s-1][1])}</span> <span class="tiny muted">${n} ayat</span>${inQ.length?` <span class="pill gold">📿 ${inQ.map(q=>q.a+'–'+q.e).join(', ')}</span>`:''}</div>
+   <div class="row"><div class="seg" role="group" aria-label="${esc(SUR[s-1][1])}">${[['none','No'],['forgot','Forgot'],['good','Still good']].map(([v,l])=>`<button type="button" data-ws="${s}" data-v="${v}" aria-pressed="${st===v}">${l}</button>`).join('')}</div><button type="button" class="sm" data-parts="${s}" aria-pressed="${st==='parts'}">Some ayat${st==='parts'?' ('+parts.length+')':''}</button></div>
+   <div class="parts" ${st==='parts'||MEMOPEN.has(s)?'':'hidden'}>${parts.map((p,k)=>`<div class="row small"><label for="pa${s}_${k}">Ayah</label><input id="pa${s}_${k}" data-pa="${s}:${k}" type="number" min="1" max="${n}" value="${p.a}" style="width:70px"><label for="pe${s}_${k}">to</label><input id="pe${s}_${k}" data-pe="${s}:${k}" type="number" min="1" max="${n}" value="${p.e}" style="width:70px"><select data-pst="${s}:${k}" aria-label="State"><option value="forgot" ${p.st==='forgot'?'selected':''}>Forgot</option><option value="good" ${p.st==='good'?'selected':''}>Still good</option></select><button type="button" class="sm ghost" data-prm="${s}:${k}">Remove</button></div>`).join('')}
+    <button type="button" class="sm" data-padd="${s}">+ Add ayat range</button></div></div>`}
+const MEMOPEN=new Set();
+function setupHTML(first){const groups=Array.from({length:30},()=>[]);for(let s=1;s<=114;s++)groups[surahJuz(s)-1].push(s);
+  return `<div class="${first?'stack':''}" style="${first?'padding-top:14px':''}">
+  ${first?`<section class="card"><span class="eyebrow">Set up</span><h2>What have you memorised?</h2>
+  <p class="small muted" style="margin:0">Mark it surah by surah. It can be scattered: a whole surah, or just some ayat (tap <b>Some ayat</b>, and add as many ranges as you need). <b>Forgot</b> = we revive it page by page. <b>Still good</b> = straight into revision. Your 30 Qirath passages are already counted as "still good" (marked 📿).</p>`:''}
+  <div class="small" id="memSum">${memSummary()}</div>
+  <input id="sf" type="search" placeholder="Find a surah (name or number)" aria-label="Find a surah" style="width:100%">
+  <div id="memList" class="stack" style="gap:8px">${groups.map((ss,j)=>ss.length?`<details class="jz" data-j="${j+1}" ${ss.some(s=>(S.mem[s]||[]).length||(S.qirath||[]).some(q=>q.s===s))?'open':''}><summary>Juz ${j+1} <span class="tiny muted">· ${ss.map(s=>SUR[s-1][1]).join(', ')}</span></summary><div>${ss.map(rowHTML).join('')}</div></details>`:'').join('')}</div>
+  <div class="row"><label class="small" for="perDay">Pages to revive a day</label><select id="perDay">${[1,2,3,4,5].map(n=>`<option ${S.perDay===n?'selected':''}>${n}</option>`).join('')}</select>
+   <label class="small" for="cap">Max revision pages a day</label><select id="cap">${[10,20,30,40].map(n=>`<option value="${n}" ${S.cap===n?'selected':''}>${n}${n===20?' (1 juz)':''}</option>`).join('')}</select>
+   <label class="small" for="order">Revive order</label><select id="order"><option value="asc" ${S.order==='asc'?'selected':''}>From the first page</option><option value="desc" ${S.order==='desc'?'selected':''}>From the last page backwards</option></select></div>
+  <div class="row"><button class="primary" id="applySetup">${first?'Start my plan':'Save changes'}</button><span class="tiny muted">${first?'You can change this any time in Settings at the bottom of Today.':'Pages already in revision keep their progress.'}</span></div>
+  ${first?'</section>':''}</div>`}
+function bindSetup(){const list=$('#memList');
+  if(list){const rerow=s=>{const el=list.querySelector(`.srow[data-s="${s}"]`);if(el){el.outerHTML=rowHTML(s)}const sm=$('#memSum');if(sm)sm.innerHTML=memSummary()};
+    list.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.ws){const s=+b.dataset.ws,v=b.dataset.v;MEMOPEN.delete(s);if(v==='none')delete S.mem[s];else S.mem[s]=[{a:1,e:SUR[s-1][2],st:v}];rerow(s)}
+      else if(b.dataset.parts){const s=+b.dataset.parts;MEMOPEN.has(s)?MEMOPEN.delete(s):MEMOPEN.add(s);if(!(S.mem[s]||[]).length){S.mem[s]=[{a:1,e:Math.min(10,SUR[s-1][2]),st:'forgot'}];MEMOPEN.add(s)}rerow(s)}
+      else if(b.dataset.padd){const s=+b.dataset.padd;const ps=S.mem[s]=S.mem[s]||[];const last=ps.length?ps[ps.length-1].e:0;const n=SUR[s-1][2];ps.push({a:Math.min(n,last+1),e:Math.min(n,last+10),st:'forgot'});MEMOPEN.add(s);rerow(s)}
+      else if(b.dataset.prm){const[s,k]=b.dataset.prm.split(':').map(Number);S.mem[s].splice(k,1);if(!S.mem[s].length)delete S.mem[s];MEMOPEN.add(s);rerow(s)}});
+    list.addEventListener('change',e=>{const t=e.target;const key=t.dataset.pa||t.dataset.pe||t.dataset.pst;if(!key)return;const[s,k]=key.split(':').map(Number);const p=S.mem[s][k];const n=SUR[s-1][2];
+      if(t.dataset.pst)p.st=t.value;else{const v=Math.min(n,Math.max(1,+t.value||1));if(t.dataset.pa)p.a=v;else p.e=v;if(p.e<p.a){if(t.dataset.pa)p.e=p.a;else p.a=p.e}}MEMOPEN.add(s);rerow(s)});
+    const sf=$('#sf');if(sf)sf.oninput=()=>{const q=sf.value.trim().toLowerCase();list.querySelectorAll('.srow').forEach(r=>{const s=+r.dataset.s;const hit=!q||String(s)===q||SUR[s-1][1].toLowerCase().includes(q)||SUR[s-1][0].includes(q)||norm(SUR[s-1][0]).includes(norm(q));r.hidden=!hit});
+      list.querySelectorAll('details.jz').forEach(d=>{const any=[...d.querySelectorAll('.srow')].some(r=>!r.hidden);d.hidden=!any;if(q&&any)d.open=true})}}
+  const ap=$('#applySetup');if(!ap)return;
+  ap.onclick=()=>{S.perDay=+$('#perDay').value;S.cap=+$('#cap').value;S.order=$('#order').value;applySetup();toast('Plan saved');R.today();window.scrollTo(0,0)}}
+function memAyahs(){const set=new Set();memParts().forEach(p=>partIds(p).forEach(i=>set.add(i)));(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>set.add(i)));return [...set].sort((a,b)=>a-b)}
+function bindCommon(root){
+  root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{S.cur=+b.dataset.open;save();go('mushaf')});
+  root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go==='qirath')QV.cur=null;go(b.dataset.go)});
+  root.querySelectorAll('[data-qopen]').forEach(b=>b.onclick=()=>{QV.cur=+b.dataset.qopen;revealed=new Set();go('qirath')});
+  root.querySelectorAll('[data-mk]').forEach(b=>b.onclick=()=>{MK.group=b.dataset.mk;go('makharij')});
+}
+
+/* ================= MUSHAF ================= */
+const LCLS={'ذ':'c-dh','ز':'c-z','ظ':'c-zh','ض':'c-d','ث':'c-th','س':'c-s','ص':'c-sd'};
+let revealed=new Set(),reps=0,selAyah=null;
+function renderWord(w,opt){
+  if(!LETTER.test(w))return esc(w);
+  if(opt.hint){const m=w.match(/^(.)([ؐ-ًؚ-ٰٟۖ-ۭ]*)/);const f=m[1]+m[2];return esc(f)+('اأإآٱدذرزوؤةى'.includes(m[1])?'':'ـ')}
+  let out='',i=0;
+  const conf=opt.wf&&isConf(norm(w));
+  while(i<w.length){const ch=w[i];let j=i+1;while(j<w.length&&/[ؐ-ًؚ-ٰٟۖ-ۭ]/.test(w[j]))j++;const seg=w.slice(i,j);
+    if(i===0&&conf)out+=`<span class="wf">${esc(seg)}</span>`;
+    else if(opt.color&&LCLS[ch])out+=`<span class="${LCLS[ch]}">${esc(seg)}</span>`;
+    else out+=esc(seg);i=j}
+  return out}
+function ayahHTML(i,mode){
+  const a=Q.a[i];const opt={color:S.color,wf:S.markwf,hint:mode==='hint'};
+  const num=`<span class="anum">﴿${AD(a[1])}﴾</span>`;
+  if((mode==='hide'||mode==='test')&&!revealed.has(i)){
+    const first=mode==='test'?`<span class="anchor">${renderWord(TOK[i].find(w=>LETTER.test(w)),{})}</span> `:'';
+    return `<span class="ayah" data-a="${i}">${first}<span class="hid"></span> ${num}</span> `}
+  return `<span class="ayah${selAyah===i?' sel':''}" data-a="${i}">${TOK[i].map(w=>renderWord(w,opt)).join(' ')} ${num}</span> `}
+R.mushaf=function(){
+  const p=Math.min(604,Math.max(1,S.cur||1));const ids=PAGES[p];const app=$('#app');const o=S.pages[p];
+  const status=!o?'<span class="pill">not in your plan</span>':o.st==='revive'?'<span class="pill red">to revive</span>':`<span class="pill ${o.s<=1?'amber':o.s>=4?'green':''}">strength ${o.s}/7 · next ${o.due<=today()?'today':'in '+(o.due-today())+' d'}</span>`;
+  let body='';
+  ids.forEach(i=>{const a=Q.a[i];if(a[1]===1){body+=`<div class="shead"><span class="n">سورة ${esc(SUR[a[0]-1][0])}</span><span class="tiny muted">${a[0]}. ${esc(SUR[a[0]-1][1])} · ${SUR[a[0]-1][2]} ayat</span></div>`;if(a[0]!==1&&a[0]!==9)body+=`<div class="basm">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`}
+    body+=ayahHTML(i,S.mode)});
+  const surOpts=SUR.map((s,k)=>`<option value="${k+1}">${k+1}. ${esc(s[1])}</option>`).join('');
+  const firstS=Q.a[ids[0]][0];
+  app.innerHTML=`<div class="stack" style="padding-top:12px">
+   <div class="pagebar"><button class="sm" id="next" aria-label="Next page">‹ ${p<604?p+1:''}</button>
+     <div class="row"><select id="sur" aria-label="Go to surah">${surOpts}</select><select id="juz" aria-label="Go to juz">${Array.from({length:30},(_,i)=>`<option value="${i+1}" ${pageJuz(p)===i+1?'selected':''}>Juz ${i+1}</option>`).join('')}</select><input id="pg" type="number" inputmode="numeric" min="1" max="604" value="${p}" style="width:76px" aria-label="Page number"></div>
+     <button class="sm" id="prev" aria-label="Previous page">${p>1?p-1:''} ›</button></div>
+   <div class="row" style="justify-content:space-between"><span class="small"><b>Page ${p}</b> · Juz ${pageJuz(p)}</span>${status}</div>
+   <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
+   <div class="row small"><button class="sm" id="tColor" aria-pressed="${S.color}">Colour ذ ز ظ ض ث س ص</button><button class="sm" id="tWf" aria-pressed="${S.markwf}">Mark و/ف words</button><button class="sm" id="tBig" aria-pressed="${S.big}">Large text</button></div>
+   ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button><span class="tiny muted">Recite the ayah first, then reveal.</span></div>':S.mode==='hide'?'<p class="tiny muted" style="margin:0">Tap an ayah to check it.</p>':''}
+   <article class="paper"><div class="mus${S.big?' big':''}" lang="ar" id="mus">${body}</div></article>
+   ${S.color?`<div class="legend">${Object.entries(LCLS).map(([l,c])=>`<span><span class="${c} ar" style="font-size:18px;font-weight:700">${l}</span></span>`).join('')}<span>tap Letters tab to practise</span></div>`:''}
+   ${pageActions(p)}
+   <section class="card" aria-labelledby="vc"><h2 id="vc">Check my recitation</h2>
+     <p class="small muted" style="margin:0">Tap <b>🎙 Recite</b> and recite from memory. Tap <b>Stop and check</b> when you finish. Or type from memory. The app compares every word with the mushaf and shows what you missed or changed, including و↔ف swaps.</p>
+     <div class="row"><label class="small" for="from">From ayah</label><select id="from">${ids.map(i=>`<option value="${i}">${Q.a[i][0]}:${Q.a[i][1]}</option>`).join('')}</select><label class="small" for="to">to</label><select id="to">${ids.map((i,k)=>`<option value="${i}" ${k===Math.min(2,ids.length-1)?'selected':''}>${Q.a[i][0]}:${Q.a[i][1]}</option>`).join('')}</select></div>
+     <textarea id="said" lang="ar" dir="rtl" placeholder="اضغط على الميكروفون واقرأ…" aria-label="Your recitation"></textarea>
+     <div class="row"><button class="primary" id="micBtn" aria-pressed="false">🎙 Recite</button><button id="check">Check</button><button class="sm ghost" id="clear">Clear</button></div>
+     <div id="result"></div>
+   </section>
+  </div>`;
+  $('#sur').value=firstS;
+  const setP=n=>{S.cur=Math.min(604,Math.max(1,n));revealed=new Set();reps=0;selAyah=null;save();R.mushaf();window.scrollTo(0,0)};
+  $('#next').onclick=()=>setP(p+1);$('#prev').onclick=()=>setP(p-1);
+  $('#pg').onchange=e=>setP(+e.target.value||1);
+  $('#sur').onchange=e=>{const s=+e.target.value;setP(Q.a.find(a=>a[0]===s)[3])};
+  $('#juz').onchange=e=>setP(JUZP[+e.target.value][0]);
+  document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.mushaf()});
+  $('#tColor').onclick=()=>{S.color=!S.color;save();R.mushaf()};
+  $('#tWf').onclick=()=>{S.markwf=!S.markwf;save();R.mushaf()};
+  $('#tBig').onclick=()=>{S.big=!S.big;save();R.mushaf()};
+  const rn=$('#revealNext');if(rn)rn.onclick=()=>{const n=ids.find(i=>!revealed.has(i));if(n!==undefined){revealed.add(n);refreshMus(ids)}else toast('Page complete')};
+  const ha=$('#hideAll');if(ha)ha.onclick=()=>{revealed=new Set();refreshMus(ids)};
+  $('#mus').onclick=e=>{const el=e.target.closest('.ayah');if(!el)return;const i=+el.dataset.a;
+    if(S.mode==='hide'||S.mode==='test'){revealed.has(i)?revealed.delete(i):revealed.add(i);refreshMus(ids);return}
+    ayahSheet(i)};
+  $('#check').onclick=()=>doCheck();bindMic();$('#clear').onclick=()=>{$('#said').value='';$('#result').innerHTML=''};
+  $('#from').onchange=()=>{const f=+$('#from').value;if(+$('#to').value<f)$('#to').value=f};
+  bindPageActions(p);
+};
+function refreshMus(ids){let body='';ids.forEach(i=>{const a=Q.a[i];if(a[1]===1){body+=`<div class="shead"><span class="n">سورة ${esc(SUR[a[0]-1][0])}</span><span class="tiny muted">${a[0]}. ${esc(SUR[a[0]-1][1])} · ${SUR[a[0]-1][2]} ayat</span></div>`;if(a[0]!==1&&a[0]!==9)body+=`<div class="basm">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`}body+=ayahHTML(i,S.mode)});$('#mus').innerHTML=body}
+function pageActions(p){const o=S.pages[p];
+  if(o&&o.st==='revive')return `<section class="card"><h3>Reviving this page</h3>
+   <ol class="small"><li>Read the page 3 times looking, slowly, with correct letters (Colour mode helps).</li><li>Ayah by ayah: read once, then recite it without looking 3 times. Join it to the previous ayah.</li><li>Switch to <b>Test</b> and recite the whole page from memory. Use the voice check below.</li><li>Link: recite the last ayah of the previous page and the first ayah of this one together.</li></ol>
+   <div class="row"><button id="rep">Repetitions: <b id="repn">${reps}</b></button><button class="primary" id="revived">I can recite it – add to revision</button></div></section>`;
+  return `<section class="card"><div class="row" style="justify-content:space-between"><h3>How was this page from memory?</h3>${!o?'<span class="tiny muted">Grading adds it to your plan</span>':''}</div>
+   <div class="gradebar"><button class="g0" data-g="0">Forgot<small>again tomorrow</small></button><button class="g1" data-g="1">Weak<small>tomorrow</small></button><button class="g2" data-g="2">Good<small>later</small></button><button class="g3" data-g="3">Strong<small>much later</small></button></div></section>`}
+function bindPageActions(p){
+  const rep=$('#rep');if(rep)rep.onclick=()=>{reps++;$('#repn').textContent=reps};
+  const rv=$('#revived');if(rv)rv.onclick=()=>{markRevived(p);toast('Added to revision. It comes back tomorrow.');const n=revivePages()[0];R.mushaf()};
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{grade(p,+b.dataset.g);const nx=dueToday()[0];toast(['Back tomorrow','Back tomorrow','Scheduled','Scheduled far ahead'][+b.dataset.g]+(nx?` · next due: p ${nx}`:''));if(nx&&nx!==p){S.cur=nx;revealed=new Set();save()}R.mushaf()})}
+function ayahSheet(i){selAyah=i;const a=Q.a[i];
+  openSheet(`<div class="row" style="justify-content:space-between"><b>${esc(ref(i))}</b><button class="sm ghost" data-close>Close</button></div>
+   <div class="mus" style="font-size:24px;text-align:right">${TOK[i].map(w=>renderWord(w,{color:true,wf:true})).join(' ')}</div>
+   <div class="row"><a class="btn" href="https://quran.com/${a[0]}/${a[1]}" target="_blank" rel="noopener">Listen on quran.com</a><button id="shCheck">Check this ayah by voice</button><button id="shMist">Save as my mistake</button></div>
+   <div id="mistForm" hidden class="stack"><input id="mistNote" placeholder="What did you get wrong? e.g. said وَ instead of فَ"><button class="primary sm" id="mistSave">Save</button></div>`);
+  $('#shCheck').onclick=()=>{closeSheet();$('#from').value=i;$('#to').value=i;$('#said').focus();$('#said').scrollIntoView({block:'center'})};
+  $('#shMist').onclick=()=>{$('#mistForm').hidden=false;$('#mistNote').focus()};
+  $('#mistSave').onclick=()=>{S.mistakes.unshift({a:i,n:$('#mistNote').value.trim()||'Mistake',t:today()});save();closeSheet();toast('Saved to your mistakes book (Wa / Fa tab)')}}
+function openSheet(html){$('#overlay').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><div class="in">${html}</div></div>`;document.querySelectorAll('#overlay [data-close]').forEach(b=>b.onclick=closeSheet)}
+function closeSheet(){const o=$('#overlay');if(o)o.innerHTML='';if(selAyah!==null){selAyah=null;const m=$('#mus');if(m)m.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'))}}
+
+/* ---- recitation check ---- */
+function cleanWords(i){return Q.a[i][6].split(' ').filter(w=>LETTER.test(w))}
+function diffWords(exp,said){const E=exp.map(norm),Sd=said.map(norm);const n=E.length,m=Sd.length;
+  const L=Array.from({length:n+1},()=>new Int16Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=E[i]===Sd[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const ops=[];let i=0,j=0;
+  while(i<n&&j<m){if(E[i]===Sd[j]){ops.push({t:'ok',e:exp[i]});i++;j++}else if(L[i+1][j]>=L[i][j+1]){ops.push({t:'miss',e:exp[i]});i++}else{ops.push({t:'extra',s:said[j]});j++}}
+  while(i<n)ops.push({t:'miss',e:exp[i++]});while(j<m)ops.push({t:'extra',s:said[j++]});
+  // pair miss+extra into substitutions
+  const out=[];for(let k=0;k<ops.length;k++){const a=ops[k],b=ops[k+1];
+    if(b&&((a.t==='miss'&&b.t==='extra')||(a.t==='extra'&&b.t==='miss'))){const e=a.t==='miss'?a.e:b.e,s=a.t==='extra'?a.s:b.s;const ne=norm(e),ns=norm(s);
+      const wf=ne.length>1&&ns.length>1&&'وف'.includes(ne[0])&&'وف'.includes(ns[0])&&ne[0]!==ns[0]&&ne.slice(1)===ns.slice(1);
+      out.push({t:wf?'wf':'sub',e,s,lt:wf?null:letterSwap(ne,ns)});k++}else out.push(a)}
+  return out}
+const CONFUSE=[['ذ','ز','ظ','د'],['ث','س','ص'],['ض','د','ظ'],['ح','ه'],['ق','ك'],['ط','ت'],['ع','ا','ء']];
+function letterSwap(a,b){if(a.length!==b.length)return null;let d=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])d.push([a[i],b[i]]);
+  if(d.length!==1)return null;const[x,y]=d[0];return CONFUSE.some(g=>g.includes(x)&&g.includes(y))?[x,y]:null}
+function doCheck(){const f=+$('#from').value,t=Math.max(f,+$('#to').value);const said=$('#said').value.trim();
+  if(!said){$('#result').innerHTML='<div class="feedback mid">Recite or type something first. Tip: the microphone is on the Arabic keyboard, bottom right.</div>';return}
+  const exp=[];for(let i=f;i<=t;i++)cleanWords(i).forEach(w=>exp.push({w,i}));
+  const ops=diffWords(exp.map(x=>x.w),said.split(/\s+/).filter(Boolean));
+  let ok=0,miss=0,sub=0,wf=0,ltrs=[];
+  const html=ops.map(o=>{if(o.t==='ok'){ok++;return `<span class="d-ok">${esc(o.e)}</span>`}
+    if(o.t==='miss'){miss++;return `<span class="d-miss" title="missed">${esc(o.e)}</span>`}
+    if(o.t==='extra')return `<span class="d-extra">${esc(o.s)}</span>`;
+    if(o.t==='wf'){wf++;return `<span class="d-wf">${esc(o.e)} <small>(you: ${esc(o.s)})</small></span>`}
+    sub++;if(o.lt)ltrs.push(o.lt);return `<span class="d-sub">${esc(o.e)} <small>(you: ${esc(o.s)})</small></span>`}).join(' ');
+  const total=exp.length,score=Math.round(100*ok/Math.max(1,total));
+  // log wa/fa swaps into the drill
+  if(wf){ops.filter(o=>o.t==='wf').forEach(o=>{for(let i=f;i<=t;i++){const ti=TOK[i].findIndex(w=>{const n=norm(w);return isConf(n)&&n.slice(1)===norm(o.e).slice(1)});if(ti>=0){const k=i+':'+ti;S.wf[k]={b:0,due:today(),w:((S.wf[k]||{}).w||0)+1};break}}});save()}
+  logDay('check');save();
+  $('#result').innerHTML=`<div class="stack"><div class="feedback ${score>=95?'okk':score>=75?'mid':'bad'}"><b>${score}% matched</b> · ${ok}/${total} words.${miss?` ${miss} missed.`:''}${sub?` ${sub} changed.`:''}${wf?` <b>${wf} و/ف swap${wf>1?'s':''}</b>, added to your Wa/Fa drill.`:''}</div>
+   <div class="paper"><div class="diff" lang="ar">${html}</div></div>
+   <div class="legend"><span><i style="background:var(--danger-soft)"></i>missed</span><span><i style="background:var(--warn-soft)"></i>changed word</span><span><i style="background:var(--gold-soft)"></i>و/ف swap</span><span style="text-decoration:line-through">extra</span></div>
+   ${ltrs.length?`<div class="feedback mid">Possible letter problem: ${ltrs.map(([x,y])=>`<b class="ar">${x}</b> heard as <b class="ar">${y}</b>`).join(', ')}. Practise it in the Letters tab.</div>`:''}
+   <p class="tiny muted" style="margin:0">The phone's dictation sometimes "corrects" words to what it expects, so a match is a good sign, not proof. A teacher or partner should still hear you each week.</p></div>`}
+
+/* ================= WA / FA ================= */
+let WF={q:[],k:0,ans:null,score:0,view:'drill'};
+function wfPool(){const out=[];memAyahs().forEach(ai=>TOK[ai].forEach((w,ti)=>{if(LETTER.test(w)&&isConf(norm(w)))out.push(ai+':'+ti)}));return out}
+function newSession(){const t=today();const due=shuffle(Object.keys(S.wf).filter(k=>S.wf[k].due<=t));
+  const pool=wfPool().filter(k=>!S.wf[k]);
+  // prefer look-alike (mutashabih) words
+  const pairKeys=new Set();buildPairs().forEach(v=>[...v.w,...v.f].forEach(([a,ti])=>pairKeys.add(a+':'+ti)));
+  const hot=shuffle(pool.filter(k=>pairKeys.has(k))),rest=shuffle(pool.filter(k=>!pairKeys.has(k)));
+  const q=due.slice(0,6);while(q.length<10&&(hot.length||rest.length)){q.push((q.length%2&&hot.length)||!rest.length?hot.pop():rest.pop())}
+  WF={q,k:0,ans:null,score:0,view:'drill'}}
+function qHTML(key){const[ai,ti]=key.split(':').map(Number);const toks=TOK[ai];
+  const w=toks[ti];const rest=w.slice(1).replace(MARKS,'');
+  const before=toks.slice(0,ti).join(' '),after=toks.slice(ti+1).join(' ');
+  const prev=Q.a[ai][1]>1?TOK[ai-1].slice(-7).join(' '):'';
+  return `<div class="qbox" lang="ar">${prev?`<span class="ctx">… ${esc(prev)}</span>`:''}${esc(before)} <span class="gap">${WF.ans?esc(w[0]):'؟'}</span>${esc(rest)} ${esc(after)} <span class="anum">﴿${AD(Q.a[ai][1])}﴾</span></div>`}
+R.wafa=function(){const app=$('#app');
+  if(!S.setup){app.innerHTML=`<div class="stack" style="padding-top:14px"><div class="card"><h2>First mark what you memorised</h2><p class="small muted" style="margin:0">The drill uses only the parts you memorised.</p><button class="primary" data-go="today">Set up</button></div></div>`;bindCommon(app);return}
+  const tabs=`<div class="seg" role="group" aria-label="Wa Fa section">${[['drill','Drill'],['pairs','Look-alike ayat'],['book','My mistakes'],['rules','How to tell']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${WF.view===v}">${l}</button>`).join('')}</div>`;
+  let inner='';
+  if(WF.view==='drill'){
+    if(!WF.q.length||WF.k>=WF.q.length&&WF.done){newSession()}
+    if(!WF.q.length)inner=`<div class="card"><p>No و/ف words found in your parts. Mark more on Today › Settings.</p></div>`;
+    else if(WF.k>=WF.q.length){const pct=Math.round(100*WF.score/WF.q.length);inner=`<div class="card"><h2>${WF.score} / ${WF.q.length}</h2><div class="bar"><i style="width:${pct}%"></i></div><p class="small muted" style="margin:0">Wrong answers come back tomorrow, then after 3, 7 and 21 days until they stick.</p><div class="row"><button class="primary" id="again">10 more</button><button data-v2="book">See my mistakes</button></div></div>`}
+    else{const key=WF.q[WF.k];const[ai,ti]=key.split(':').map(Number);const correct=norm(TOK[ai][ti])[0];
+      inner=`<div class="card"><div class="row" style="justify-content:space-between"><span class="eyebrow">Question ${WF.k+1} of ${WF.q.length}</span><span class="small muted">${esc(ref(ai))}</span></div>
+      ${qHTML(key)}
+      <div class="answers">${['و','ف'].map(l=>`<button data-ans="${l}" class="${WF.ans?(l===correct?'right':WF.ans===l?'wrong':''):''}" ${WF.ans?'disabled':''} aria-label="${l==='و'?'Waw':'Fa'}">${l}</button>`).join('')}</div>
+      ${WF.ans?`<div class="feedback ${WF.ans===correct?'okk':'bad'}">${WF.ans===correct?'Correct.':'Not this time. The mushaf has <b class="ar">'+correct+'</b>. It will come back tomorrow.'}</div>
+        <div class="row"><button class="primary" id="nextQ">Next</button><a class="btn" href="https://quran.com/${Q.a[ai][0]}/${Q.a[ai][1]}" target="_blank" rel="noopener">Listen</a></div><div id="why" class="small why"></div>${similarHTML(ai,ti)}`:'<p class="tiny muted" style="margin:0;text-align:center">Recite the ayah aloud from the start, then choose.</p>'}</div>`}
+  }else if(WF.view==='pairs'){const ms=new Set(memAyahs());const ps=buildPairs().filter(v=>[...v.w,...v.f].some(([a])=>ms.has(a)));
+    inner=`<div class="card"><h2>Look-alike ayat in what you memorised</h2><p class="small muted" style="margin:0">Same words around, only و or ف is different. These cause most و/ف mistakes. Learn each pair together: say both, and notice the word before.</p></div>
+     ${ps.length?ps.slice(0,80).map(v=>{const show=([a,ti])=>`<div class="stack" style="gap:2px"><span class="tiny muted">${esc(ref(a))}</span><div class="mus" style="font-size:22px;text-align:right;line-height:2">${TOK[a].map((w,k)=>k===ti?`<span class="hit">${renderWord(w,{wf:true})}</span>`:esc(w)).join(' ')}</div></div>`;
+       return `<div class="card">${v.w.slice(0,2).map(show).join('')}${v.f.slice(0,2).map(show).join('')}</div>`}).join(''):'<div class="card">No look-alike pairs found in your parts yet.</div>'}
+     ${ps.length>80?`<p class="tiny muted">Showing 80 of ${ps.length}.</p>`:''}`}
+  else if(WF.view==='book'){const keys=Object.keys(S.wf).sort((a,b)=>S.wf[b].w-S.wf[a].w);
+    inner=`<div class="card"><h2>My mistakes book</h2><p class="small muted" style="margin:0">Every و/ف you got wrong, and any mistake you saved from the mushaf. The most repeated come first.</p>
+      <div class="row small"><span class="pill green">${S.wfStats.r} right</span><span class="pill red">${S.wfStats.w} wrong</span></div></div>
+     ${keys.filter(k=>S.wf[k].w>0).map(k=>{const[ai,ti]=k.split(':').map(Number);return `<div class="card"><div class="row" style="justify-content:space-between"><span class="small"><b>${esc(ref(ai))}</b></span><span class="pill red">wrong ×${S.wf[k].w}</span></div><div class="mus" style="font-size:22px;text-align:right;line-height:2">${TOK[ai].map((w,x)=>x===ti?`<span class="hit">${renderWord(w,{wf:true})}</span>`:esc(w)).join(' ')}</div></div>`}).join('')}
+     ${S.mistakes.map((m,x)=>`<div class="card"><div class="row" style="justify-content:space-between"><span class="small"><b>${esc(ref(m.a))}</b> · ${esc(m.n)}</span><button class="sm ghost" data-del="${x}">Remove</button></div><div class="mus" style="font-size:22px;text-align:right;line-height:2">${TOK[m.a].map(w=>renderWord(w,{wf:true,color:true})).join(' ')}</div></div>`).join('')}
+     ${!keys.some(k=>S.wf[k].w>0)&&!S.mistakes.length?'<div class="card small muted">Nothing yet. Wrong drill answers and saved mistakes appear here.</div>':''}`}
+  else inner=RULES;
+  app.innerHTML=`<div class="stack" style="padding-top:14px">${tabs}${inner}</div>`;
+  bindCommon(app);
+  app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{WF.view=b.dataset.v;R.wafa()});
+  app.querySelectorAll('[data-v2]').forEach(b=>b.onclick=()=>{WF.view=b.dataset.v2;R.wafa()});
+  app.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{S.mistakes.splice(+b.dataset.del,1);save();R.wafa()});
+  const ag=$('#again');if(ag)ag.onclick=()=>{newSession();R.wafa()};
+  app.querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>{const key=WF.q[WF.k];const[ai,ti]=key.split(':').map(Number);const c=norm(TOK[ai][ti])[0];
+    WF.ans=b.dataset.ans;const right=WF.ans===c;const o=S.wf[key]||{b:0,due:0,w:0};
+    if(right){WF.score++;S.wfStats.r++;o.b=Math.min(o.b+1,4);o.due=today()+[1,3,7,21,60][o.b];if(o.w||S.wf[key])S.wf[key]=o}
+    else{S.wfStats.w++;o.b=0;o.w++;o.due=today()+1;S.wf[key]=o}
+    logDay('wf');save();R.wafa()});
+  const nx=$('#nextQ');if(nx)nx.onclick=()=>{WF.k++;WF.ans=null;R.wafa()};
+  const wb=$('#whyBtn');if(wb)wb.onclick=()=>askWhy();
+};
+function similarHTML(ai,ti){const n=norm(TOK[ai][ti]);const key=`${ai}:${ti}`;const p=buildPairs().find(v=>[...v.w,...v.f].some(([a,t])=>a===ai&&t===ti));
+  if(!p)return '';const others=[...p.w,...p.f].filter(([a,t])=>!(a===ai&&t===ti)).slice(0,3);
+  return `<div class="feedback mid"><b>Look-alike:</b> ${others.map(([a,t])=>`<div class="mus" style="font-size:21px;text-align:right;line-height:2"><span class="tiny muted">${esc(ref(a))}</span> ${TOK[a].map((w,x)=>x===t?`<span class="hit">${renderWord(w,{wf:true})}</span>`:esc(w)).join(' ')}</div>`).join('')}</div>`}
+let sampleP=null;
+async function askWhy(){const key=WF.q[WF.k];const[ai,ti]=key.split(':').map(Number);const out=$('#why');const btn=$('#whyBtn');
+  out.textContent='Asking Claude…';btn.disabled=true;
+  try{if(!sampleP)sampleP=window.claude&&window.claude.use?window.claude.use('sample'):Promise.resolve(null);const sample=await sampleP;
+    if(!sample){out.textContent='Explanations need the Claude app or claude.ai. The rules in "How to tell" still apply.';return}
+    const a=Q.a[ai];const prev=a[1]>1?Q.a[ai-1][5]:'';const w=TOK[ai][ti];
+    const prompt=`You help a Malayalam-speaking Arabic lecturer who confuses و and ف when reciting the Qur'an from memory.
+Surah ${a[0]} (${SUR[a[0]-1][1]}), ayah ${a[1]}: ${a[5]}
+${prev?'Previous ayah: '+prev:''}
+The word «${w}» begins with «${w[0]}».
+Explain in at most 70 words of simple English why «${w[0]}» fits here (for example: sequence/immediate result, cause and effect, answer of a condition, start of a new sentence or addition, oath). Then give one short memory hook to remember it. Then give the same explanation in 2 short lines of simple Malayalam.
+If a well-known similar ayah uses the other letter and you are certain of it, name it in one line. Do not guess; if unsure, say "check a tafsir". Plain text only.`;
+    await sample(prompt,{modelTier:'default',onText:({text})=>{out.textContent=text}});
+  }catch(e){out.textContent=e&&e.code==='rate_limited'?'Too many questions just now. Try again in a minute.':'Could not get an explanation right now.'}
+  finally{btn.disabled=false}}
+const RULES=`<div class="card"><h2>How to tell و from ف</h2>
+ <p class="small" style="margin:0">Before the word, ask one question: <b>Is this the result, or the very next step, of what came before?</b> Then it is usually <b class="ar">فَ</b>. If it simply adds another fact, another person, or a new scene, it is usually <b class="ar">وَ</b>.</p>
+ <dl class="attr"><dt class="ar" style="font-size:22px">فَ</dt><dd>Next step straight away (<span class="ar">ترتيب وتعقيب</span>): <span class="ar">فَأَخْرَجَهُمَا</span>. Cause and result (<span class="ar">سببية</span>). Answer after a condition (<span class="ar">إِنْ … فَ</span>, <span class="ar">مَنْ … فَ</span>, <span class="ar">أَمَّا … فَ</span>). After a command: <span class="ar">ادْخُلُوا … فَكُلُوا</span>.</dd>
+ <dt class="ar" style="font-size:22px">وَ</dt><dd>Joining two things that are together, no order (<span class="ar">مطلق الجمع</span>). Starting a new sentence or story (<span class="ar">وَإِذْ</span>, <span class="ar">وَلَقَدْ</span>). Oaths (<span class="ar">وَٱلْفَجْرِ</span>). Describing a situation (<span class="ar">واو الحال</span>).</dd></dl>
+ <p class="ml" style="margin:0">ഓർമ്മിക്കാൻ: മുമ്പ് പറഞ്ഞതിന്റെ <b>ഫലമോ തൊട്ടടുത്ത പടിയോ</b> ആണെങ്കിൽ <b class="ar">ف</b>. വെറുതെ <b>ഒന്നുകൂടി ചേർക്കുക</b>യാണെങ്കിൽ <b class="ar">و</b>.</p></div>
+ <div class="card"><h3>A famous pair</h3>
+ <div class="mus" style="font-size:22px;text-align:right;line-height:2"><span class="tiny muted">Al-Baqarah 2:58</span> وَإِذْ قُلْنَا ٱدْخُلُوا۟ هَٰذِهِ ٱلْقَرْيَةَ <span class="hit">فَكُلُوا۟</span> مِنْهَا حَيْثُ شِئْتُمْ رَغَدًۭا</div>
+ <div class="mus" style="font-size:22px;text-align:right;line-height:2"><span class="tiny muted">Al-A'raf 7:161</span> وَإِذْ قِيلَ لَهُمُ ٱسْكُنُوا۟ هَٰذِهِ ٱلْقَرْيَةَ <span class="hit">وَكُلُوا۟</span> مِنْهَا حَيْثُ شِئْتُمْ</div>
+ <p class="small" style="margin:0">Scholars of <span class="ar">المتشابه اللفظي</span> explain it this way: <b>enter → then eat</b> is a sequence, so <b class="ar">ف</b>. <b>Live there and eat</b> happen together, so <b class="ar">و</b>. Hook the letter to the verb before it.</p></div>
+ <div class="card"><h3>What fixes the habit</h3><ol class="small"><li>Never revise a look-alike ayah alone. Recite it next to its twin (see "Look-alike ayat").</li><li>Say the verb before the letter louder in your head: <span class="ar">ادخلوا ← فـ</span>, <span class="ar">اسكنوا ← وَ</span>.</li><li>When the drill catches a mistake, open the page and read the ayah 5 times looking, then 5 without.</li><li>Keep using one printed mushaf. Your eye remembers where the letter sits on the page.</li></ol></div>`;
+
+/* ================= MAKHARIJ ================= */
+const L={
+ 'ذ':{n:'Dhāl',place:'Tongue tip touches the edge of the upper front teeth. A little of the tip shows.',voice:'Voiced: the throat buzzes',w:'Light (mouth flat)',like:'"th" in this, the, mother',not:'Not ز (z) and not د (d).',ml:'നാവിന്റെ അറ്റം മുകളിലെ മുൻപല്ലുകളുടെ അറ്റത്ത് തൊടണം. അറ്റം അൽപം പുറത്ത് കാണാം. തൊണ്ട വിറക്കണം (English "this" ലെ th).'},
+ 'ز':{n:'Zāy',place:'Tongue tip just behind the lower front teeth. Teeth almost closed. The tongue does not come out.',voice:'Voiced: buzzes like a bee',w:'Light',like:'"z" in zoo',not:'Not ذ: if your tongue shows, it has become ذ.',ml:'നാവിന്റെ അറ്റം താഴത്തെ മുൻപല്ലുകൾക്ക് പിന്നിൽ. പല്ലുകൾ ഏതാണ്ട് അടഞ്ഞിരിക്കും. തേനീച്ച മൂളുന്നപോലെ "z" ശബ്ദം.'},
+ 'ظ':{n:'Ẓā',place:'Same place as ذ: tongue tip on the edge of the upper front teeth.',voice:'Voiced',w:'Heavy: lift the back of the tongue, mouth feels full and hollow',like:'ذ said with a deep, full mouth',not:'Not ز, and not a light ذ. Not ض (ض uses the side of the tongue).',ml:'ذ ന്റെ അതേ സ്ഥാനം. പക്ഷേ നാവിന്റെ പിൻഭാഗം ഉയർത്തി, വായ് നിറഞ്ഞ കനത്ത ശബ്ദം.'},
+ 'ض':{n:'Ḍād',place:'The SIDE of the tongue (left, right or both) presses on the upper back teeth (molars). The sound runs along the side.',voice:'Voiced',w:'Heavy, and stretched (istiṭāla)',like:'No English sound. It is not "d".',not:'Not د (light d) and not ظ (tongue tip out).',ml:'നാവിന്റെ വശം (ഇടത്, വലത്, അല്ലെങ്കിൽ രണ്ടും) മുകളിലെ അണപ്പല്ലുകളിൽ അമർത്തണം. കനത്ത ശബ്ദം. ഇംഗ്ലീഷ് "d" അല്ല.'},
+ 'د':{n:'Dāl',place:'Tongue tip on the gum just behind the upper front teeth.',voice:'Voiced',w:'Light, and bounces when it has sukūn (qalqala)',like:'a soft "d"',not:'Not ض.',ml:'നാവിന്റെ അറ്റം മുകളിലെ മുൻപല്ലുകൾക്ക് പിന്നിലെ മോണയിൽ. ലഘുവായ ശബ്ദം.'},
+ 'ث':{n:'Thā',place:'Same place as ذ: tongue tip on the edge of the upper front teeth.',voice:'Whispered: only air, the throat does not buzz',w:'Light',like:'"th" in think, three',not:'Not س (s): if you hear a whistle, the tongue went back.',ml:'നാവിന്റെ അറ്റം മുകളിലെ മുൻപല്ലുകളുടെ അറ്റത്ത്. ശബ്ദമില്ല, കാറ്റ് മാത്രം (English "think" ലെ th).'},
+ 'س':{n:'Sīn',place:'Tongue tip just behind the lower front teeth, like ز.',voice:'Whispered, with a thin whistle',w:'Light (mouth flat, smile shape)',like:'"s" in see',not:'Not ص (do not make it deep), not ث (tongue stays inside).',ml:'നാവിന്റെ അറ്റം താഴത്തെ മുൻപല്ലുകൾക്ക് പിന്നിൽ. നേർത്ത ചൂളം പോലെ കാറ്റ്. തൊണ്ട വിറക്കില്ല.'},
+ 'ص':{n:'Ṣād',place:'Same place as س: tongue tip behind the lower front teeth.',voice:'Whispered, with a whistle',w:'Heavy: back of the tongue up, lips slightly round',like:'a deep, full "s"',not:'Not a light س.',ml:'س ന്റെ അതേ സ്ഥാനം. പക്ഷേ നാവിന്റെ പിൻഭാഗം ഉയർത്തി, ചുണ്ട് അൽപം ഉരുട്ടി, കനത്ത ശബ്ദം.'}
+};
+const GROUPS=[
+ {id:'dhz',title:'ذ · ز · ظ',letters:['ذ','ز','ظ'],
+  tests:['<b>Mirror test:</b> for ذ and ظ you should see the tip of your tongue. For ز you should not.','<b>Long sound test:</b> hold each sound for 3 seconds: ذذذ, ززز, ظظظ. ز hisses like a bee; ذ is a soft buzz.','<b>Heavy test:</b> say ذا then ظا. Your jaw drops and the back of the tongue rises for ظا.'],
+  pairs:[['مَحْذُورًا','feared (17:57)','مَحْظُورًا','withheld (17:20)'],['ٱلذُّلِّ','humiliation (17:111)','ظِلٍّ','shade (56:30)'],['ذَكَرٌ','male','زَكَرِيَّا','Zakariyya']]},
+ {id:'ths',title:'ث · س · ص',letters:['ث','س','ص'],
+  tests:['<b>Mirror test:</b> tongue tip visible for ث only.','<b>Whistle test:</b> س and ص whistle; ث is soft air with no whistle.','<b>Heavy test:</b> say سا then صا. For صا the vowel becomes deep, like "saw", not "sa".'],
+  pairs:[['أَسَرُّوا۟','they hid (10:54)','أَصَرُّوا۟','they persisted (71:7)'],['عَسَىٰٓ','perhaps (2:216)','عَصَىٰٓ','disobeyed (20:121)'],['ثَمَنًۭا','a price (2:41)','سِمَانٍۢ','fat (12:43)']]},
+ {id:'dad',title:'ض · د · ظ',letters:['ض','د','ظ'],
+  tests:['<b>Side test:</b> say ٱضْ and hold it. You should feel the side of the tongue pressing the upper molars. If only the tip touches, it has become د.','<b>Tongue-in test:</b> for ض the tongue tip stays inside. If it comes out, it has become ظ.','<b>Heavy test:</b> ضا sounds deep; دا is light.'],
+  pairs:[['ضَلَّ','went astray (4:116)','ظَلَّ','remained (16:58)'],['ضَلُّوا۟','they strayed (6:140)','دَلَّهُمْ','showed them (34:14)'],['حَظٌّۭ','share (4:11)','يَحُضُّ','urges (69:34)']]}
+];
+let MK={group:'dhz',said:'',fb:''};
+R.makharij=function(){const app=$('#app');const g=GROUPS.find(x=>x.id===MK.group)||GROUPS[0];
+  const letters=g.letters;
+  app.innerHTML=`<div class="stack" style="padding-top:14px">
+   ${sndCardHTML()}
+   <h2 style="margin-top:6px">Learn the letters</h2>
+   <div class="seg" role="group" aria-label="Letter group">${GROUPS.map(x=>`<button data-gid="${x.id}" aria-pressed="${x.id===g.id}" class="ar" style="font-size:18px">${x.title}</button>`).join('')}</div>
+   <p class="small muted" style="margin:0">Each letter differs in three ways: <b>where</b> the tongue goes, <b>voice</b> (does the throat buzz?) and <b>weight</b> (light or heavy). Fix those three and the letter is fixed.</p>
+   <div class="lgrid">${letters.map(l=>{const d=L[l];return `<article class="lcard"><div class="big ${LCLS[l]||''}">${l}</div><div class="row" style="justify-content:space-between"><b>${d.n}</b><button class="sm" data-say="${l}">Listen</button></div>
+     <dl class="attr"><dt>Where</dt><dd>${d.place}</dd><dt>Voice</dt><dd>${d.voice}</dd><dt>Weight</dt><dd>${d.w}</dd><dt>Sounds like</dt><dd>${d.like}</dd><dt>Avoid</dt><dd>${d.not}</dd></dl>
+     <p class="ml" style="margin:0">${d.ml}</p></article>`}).join('')}</div>
+   <section class="card"><h2>Self-tests</h2><ul class="small">${g.tests.map(t=>`<li>${t}</li>`).join('')}<li><b>Throat test:</b> put your fingers on your throat. ذ ز ظ ض د buzz. ث س ص do not.</li></ul></section>
+   <section class="card"><h2>Words where the letter changes the meaning</h2>
+     <div class="pairs">${g.pairs.map(([a,am,b,bm])=>`<div><div class="w">${a}</div><div class="m">${am}</div></div><span class="muted">≠</span><div><div class="w">${b}</div><div class="m">${bm}</div></div>`).join('')}</div>
+     <p class="tiny muted" style="margin:0">One wrong letter can change the meaning. That is why this matters in recitation.</p></section>
+   <section class="card"><h2>Test my letter with the microphone</h2>
+     <p class="small muted" style="margin:0">Pick a word, tap <b>🎙 Say the word</b> and say only that word. If the phone writes a different letter, it heard that letter.</p>
+     <div class="row" id="mkWords">${g.pairs.flatMap(p=>[p[0],p[2]]).map(w=>`<button class="sm ar" style="font-size:20px" data-tw="${w}" aria-pressed="${MK.target===w}">${w}</button>`).join('')}</div>
+     <textarea id="mkSaid" lang="ar" dir="rtl" style="min-height:70px" placeholder="${MK.target?esc(MK.target):'اختر كلمة'}" aria-label="What the phone heard">${esc(MK.said||'')}</textarea>
+     <div class="row"><button class="primary" id="mkMic">🎙 Say the word</button><button id="mkCheck" ${MK.target?'':'disabled'}>Check</button></div><div id="mkFb">${MK.fb||''}</div></section>
+   <section class="card"><div class="row" style="justify-content:space-between"><h2>Read these from your memorised parts</h2><button class="sm" id="reshuf">New words</button></div>
+     <p class="small muted" style="margin:0">Say each word slowly 3 times, checking the three points above.</p>
+     <div class="wordlist">${wordsFromJuz(letters).map(([w,i])=>`<span class="wd">${renderWord(w,{color:true})}<small>${Q.a[i][0]}:${Q.a[i][1]}</small></span>`).join('')}</div></section>
+   <section class="card"><h3>Listen to a real teacher</h3><p class="small muted" style="margin:0">The phone's voice is only a rough guide. For the exact sound, listen to a muʿallim recitation (Al-Ḥuṣarī) and copy the letter, then check yourself with a teacher.</p>
+     <div class="row"><a class="btn" href="https://quran.com/1" target="_blank" rel="noopener">Open quran.com</a></div></section>
+  </div>`;
+  bindSnd();
+  app.querySelectorAll('[data-gid]').forEach(b=>b.onclick=()=>{MK={group:b.dataset.gid};SND.set=b.dataset.gid;R.makharij()});
+  app.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>say(b.dataset.say+'َ '+b.dataset.say+'ِ '+b.dataset.say+'ُ'));
+  app.querySelectorAll('[data-tw]').forEach(b=>b.onclick=()=>{MK.target=b.dataset.tw;MK.said='';MK.fb='';R.makharij();say(b.dataset.tw)});
+  $('#reshuf').onclick=()=>R.makharij();
+  bindMkMic(letters);const mc=$('#mkCheck');if(mc)mc.onclick=()=>{MK.said=$('#mkSaid').value.trim();MK.fb=checkLetter(MK.target,MK.said,letters);$('#mkFb').innerHTML=MK.fb};
+};
+function wordsFromJuz(letters){const ma=memAyahs();const ids=ma.length?ma:Q.a.map((_,i)=>i);const out=[];let guard=0;
+  while(out.length<12&&guard++<4000){const i=ids[Math.floor(Math.random()*ids.length)];const ws=TOK[i].filter(w=>letters.some(l=>w.includes(l)));if(ws.length){const w=ws[Math.floor(Math.random()*ws.length)];if(!out.some(o=>o[0]===w))out.push([w,i])}}
+  return out}
+function checkLetter(target,said,letters){if(!said)return '<div class="feedback mid">Say the word with the keyboard microphone first.</div>';
+  const t=norm(target),s=norm(said.split(/\s+/)[0]);
+  const key=letters.find(l=>t.includes(l))||'';
+  if(s===t){const d=key?L[key]:null;S.mk[key]=S.mk[key]||{ok:0,bad:0};S.mk[key].ok++;save();return `<div class="feedback okk">The phone heard <b class="ar">${esc(said)}</b>. Your <b class="ar">${key}</b> came through clearly.</div>`}
+  const heard=[...new Set(CONFUSE.filter(g=>g.includes(key)).flat())].filter(l=>l!==key&&s.includes(l)&&!t.includes(l));
+  S.mk[key]=S.mk[key]||{ok:0,bad:0};S.mk[key].bad++;save();
+  if(heard.length&&key){const h=heard[0];return `<div class="feedback bad">The phone heard <b class="ar">${esc(said)}</b>: your <b class="ar">${key}</b> may sound like <b class="ar">${h}</b>.<br><b>Fix:</b> ${L[key]?L[key].place:''} ${L[key]?L[key].w+'.':''}</div>`}
+  return `<div class="feedback mid">The phone heard <b class="ar">${esc(said)}</b>. That is a different word, so try again slowly. Dictation is not perfect.</div>`}
+let voices=[];function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^ar/i.test(v.lang))}catch(e){}}
+try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices}catch(e){}
+function say(txt){try{const u=new SpeechSynthesisUtterance(txt);u.lang='ar-SA';u.rate=.6;if(voices[0])u.voice=voices[0];speechSynthesis.cancel();speechSynthesis.speak(u);if(!voices.length)toast('No Arabic voice found. Add one in iPhone Settings › Accessibility › Spoken Content › Voices')}catch(e){toast('This browser cannot speak')}}
+
+/* ================= GUIDE ================= */
+R.guide=function(){setTimeout(bindBackup,0);$('#app').innerHTML=`<div class="stack" style="padding-top:14px">
+ <section class="card"><span class="eyebrow">Your situation</span><h2>Bringing your scattered hifz back</h2>
+  <p class="small" style="margin:0">Forgotten hifz returns much faster than new memorisation because the traces are still there. The plan in this app does three things every day, in this order:</p>
+  <ol class="small"><li><b>Revision first (Manzil and Sabqi).</b> Pages you have revived come back on a schedule: tomorrow, then 2, 4, 7, 15, 30 days. Weak pages come back sooner. You only grade honestly.</li><li><b>Revive 2 pages (Sabaq).</b> When all 14 juz are back, the same slot becomes new memorisation.</li><li><b>Fix the habits.</b> 10 و/ف questions and 5 minutes of letters.</li></ol>
+  <p class="small muted" style="margin:0">At 2 pages a day, the equivalent of 14 juz (about 280 pages) is revived in about 4½ months, with revision running alongside.</p></section>
+ <details open><summary>Best memorisation methods</summary><div><ol class="small">
+  <li><b>Revise before you memorise.</b> Most people spend 90% on new lessons and lose the old. Do revision when your mind is fresh, new pages after.</li>
+  <li><b>Sabaq, Sabqi, Manzil.</b> The method used in madrasas across India and Pakistan: today's lesson, the last few weeks, and a rotating part of everything old.</li>
+  <li><b>One mushaf only.</b> Use the same 15-line or Madani print every time. Your eye remembers the page, the line and the position.</li>
+  <li><b>Ayah by ayah, then join.</b> Read 3 times looking, recite 3 times without. Add the next ayah and recite both together. At the end, recite the whole page 3 times.</li>
+  <li><b>Link the pages (rabṭ).</b> Always recite the last ayah of the previous page with the first ayah of the new one. Most breaks happen between pages.</li>
+  <li><b>Know the meaning.</b> Read a short translation of the page before memorising it. Meaning holds the order of the words.</li>
+  <li><b>Recite in ṣalāh.</b> Use the pages you are reviving in sunnah and night prayers. It is the strongest revision.</li>
+  <li><b>Listen to one reciter.</b> Choose a slow, clear muʿallim recitation (for example Al-Ḥuṣarī) and keep the same one.</li>
+  <li><b>Be tested weekly.</b> Recite to a teacher, colleague or student once a week. The voice check helps, but a person catches more.</li>
+  <li><b>Never skip a whole week.</b> Forgetting speeds up sharply after a gap. On busy days do just the due pages.</li>
+  <li><b>Fajr time.</b> Many teachers advise memorising after Fajr, when the mind is clear.</li>
+ </ol></div></details>
+ <details><summary>Using the microphone</summary><div><ol class="small">
+  <li>The first time you tap <b>🎙 Recite</b> or <b>🎙 Record now</b>, allow the microphone.</li>
+  <li><b>🎙 Recite</b> uses Apple's Arabic dictation, so <b>Siri / Dictation</b> must be on: Settings › General › Keyboard › <b>Enable Dictation</b>.</li>
+  <li>If 🎙 Recite does not work, you can still use the keyboard: add the <b>Arabic</b> keyboard and tap its microphone in the text box.</li>
+  <li>For the Listen buttons: Settings › Accessibility › Spoken Content › Voices › Arabic, and download a voice.</li>
+ </ol></div></details>
+ <details><summary>Put the app on your Home Screen</summary><div><p class="small" style="margin:0">Open this page in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>. It opens like an app and works offline after the first visit.</p></div></details>
+ ${backupHTML()}
+ <details><summary>What this app can and cannot hear</summary><div><p class="small" style="margin:0"><b>Sound check (Letters tab):</b> you record yourself, and the app measures the sound itself: the hiss strength (س/ز versus ث/ذ), whether the throat buzzes (ذ versus ث), and how deep the vowel is (heavy ص ض ظ versus light س د ذ). These measures are reliable for those differences. They cannot judge the exact makhraj of ض.</p><p class="small" style="margin:0"><b>Recitation check:</b> uses Apple's Arabic dictation. It reliably catches skipped words, wrong words, and و↔ف swaps. For single letters like ذ/ز or ض/د it shows when the phone heard a different letter, which is a strong hint. It cannot grade tajwīd (madd, ghunna, idghām). Keep a teacher for that.</p></div></details>
+ <section class="card"><h3>Sources</h3><ul class="tiny">
+  <li><a href="https://www.quransheikh.com/revision-strategies-for-hifz-quran-students/" target="_blank" rel="noopener">Revision strategies for hifz students</a></li>
+  <li><a href="https://www.quransheikh.com/quran-hifz-revision-schedule/" target="_blank" rel="noopener">Quran hifz revision schedule</a></li>
+  <li><a href="https://medium.com/how-to-memorise-the-quran/the-way-to-memorise-the-qur%C4%81n-in-the-subcontinent-a-detailed-process-869c429ab2df" target="_blank" rel="noopener">How the Qur'an is memorised in the subcontinent</a></li>
+  <li><a href="https://qari.substack.com/p/whats-your-struggle-with-quran-revision" target="_blank" rel="noopener">What's your struggle with Qur'an revision</a></li>
+  <li><a href="https://islamqa.org/hanafi/muftionline/90366/misprounincing-the-letter-ذ-as-ز-ظ-or-the-letter-ث-as-س-ص/" target="_blank" rel="noopener">Mispronouncing ذ as ز/ظ, ث as س/ص</a></li>
+  <li><a href="https://al-dirassa.com/en/makharij-articulation-points-arabic-letters" target="_blank" rel="noopener">Makharij al-Huruf</a></li>
+  <li>Qur'an text: Tanzil Uthmani text via alquran.cloud (Madani page numbering).</li></ul></section>
+ </div>`};
+
+/* ---- acoustic letter analysis (no libraries) ---- */
+const AN=(function(){
+function fft(re,im){const n=re.length;for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){let t=re[i];re[i]=re[j];re[j]=t;t=im[i];im[i]=im[j];im[j]=t}}
+  for(let len=2;len<=n;len<<=1){const ang=-2*Math.PI/len,wr=Math.cos(ang),wi=Math.sin(ang),h=len>>1;for(let i=0;i<n;i+=len){let cr=1,ci=0;for(let k=0;k<h;k++){const a=i+k,b=a+h;const tr=re[b]*cr-im[b]*ci,ti=re[b]*ci+im[b]*cr;re[b]=re[a]-tr;im[b]=im[a]-ti;re[a]+=tr;im[a]+=ti;const t=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=t}}}}
+const dB=e=>10*Math.log10(e+1e-12);
+const pct=(arr,p)=>{const s=Array.from(arr).sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.max(0,Math.floor(p*(s.length-1))))]};
+const median=a=>a.length?pct(a,.5):NaN;
+function analyseFrames(x,fs){
+  const win=Math.round(.025*fs),hop=Math.round(.01*fs);let N=1;while(N<win)N<<=1;
+  const hw=new Float32Array(win);for(let i=0;i<win;i++)hw[i]=.54-.46*Math.cos(2*Math.PI*i/(win-1));
+  const nF=Math.max(0,Math.floor((x.length-win)/hop)+1);const F=[];const bin=fs/N;
+  const SB=64,maxF=Math.min(fs/2,11000);
+  for(let f=0;f<nF;f++){const re=new Float32Array(N),im=new Float32Array(N);let e=0;const o=f*hop;
+    for(let i=0;i<win;i++){const v=x[o+i];e+=v*v;re[i]=v*hw[i]}
+    fft(re,im);let lo=0,lm=0,hi=0,h35=0,tot=0;const P=new Float32Array(N/2);
+    for(let k=1;k<N/2;k++){const p=re[k]*re[k]+im[k]*im[k];P[k]=p;const fr=k*bin;if(fr>maxF)continue;tot+=p;if(fr<400)lo+=p;if(fr<1000)lm+=p;if(fr>2500)hi+=p;if(fr>3500)h35+=p}
+    const sp=new Float32Array(SB);for(let k=1;k<N/2;k++){const fr=k*bin;if(fr>=8000)break;sp[Math.floor(fr/8000*SB)]+=P[k]}
+    F.push({db:dB(e/win),lo,lm,hi,h35,tot,P,sp})}
+  return {F,win,hop,N,bin,maxF}}
+function segments(A){const F=A.F;if(!F.length)return {segs:[],floor:0};const d=F.map(f=>f.db);
+  const floor=pct(d,.08),peak=pct(d,.995);const th=floor+Math.max(10,(peak-floor)*.3);
+  let act=d.map(v=>v>th);
+  // close gaps under 120 ms
+  for(let i=0;i<act.length;){if(!act[i]){let j=i;while(j<act.length&&!act[j])j++;if(i>0&&j<act.length&&j-i<12)for(let k=i;k<j;k++)act[k]=true;i=j}else i++}
+  const segs=[];for(let i=0;i<act.length;){if(act[i]){let j=i;while(j<act.length&&act[j])j++;if(j-i>=10)segs.push({s:i,e:j-1});i=j}else i++}
+  // extend backwards over a weak fricative onset (ث, ذ)
+  segs.forEach((g,n)=>{const lim=n?segs[n-1].e+5:0;let s=g.s;while(s-1>lim&&g.s-(s-1)<=30&&F[s-1].db>floor+6)s--;g.s=s});
+  return {segs,floor,peak}}
+function lpcFormants(x,fs){
+  const d=Math.max(1,Math.round(fs/11025)),fs2=fs/d;const n=Math.floor(x.length/d);const y=new Float64Array(n);
+  for(let i=0;i<n;i++){let s=0;for(let k=0;k<d;k++)s+=x[i*d+k];y[i]=s/d}
+  for(let i=n-1;i>0;i--)y[i]-=.97*y[i-1];
+  for(let i=0;i<n;i++)y[i]*=.54-.46*Math.cos(2*Math.PI*i/(n-1));
+  const p=12,r=new Float64Array(p+1);for(let k=0;k<=p;k++){let s=0;for(let i=k;i<n;i++)s+=y[i]*y[i-k];r[k]=s}
+  if(r[0]<=0)return [];r[0]*=1.0001;
+  let a=new Float64Array(p+1);a[0]=1;let E=r[0];
+  for(let i=1;i<=p;i++){let acc=r[i];for(let j=1;j<i;j++)acc+=a[j]*r[i-j];const k=-acc/E;const na=a.slice();for(let j=1;j<i;j++)na[j]=a[j]+k*a[i-j];na[i]=k;a=na;E*=(1-k*k);if(E<=0)break}
+  // roots of z^p + a1 z^(p-1) + ... + ap  (Durand-Kerner)
+  let zr=[],zi=[];for(let i=0;i<p;i++){const ang=2*Math.PI*i/p+.4;zr.push(.9*Math.cos(ang));zi.push(.9*Math.sin(ang))}
+  const ev=(xr,xi)=>{let pr=1,pi=0;for(let j=1;j<=p;j++){const t=pr*xr-pi*xi;pi=pr*xi+pi*xr;pr=t+a[j]}return [pr,pi]};
+  for(let it=0;it<300;it++){let mx=0;for(let i=0;i<p;i++){let [nr,ni]=ev(zr[i],zi[i]);let dr=1,di=0;for(let j=0;j<p;j++){if(j===i)continue;const ar=zr[i]-zr[j],ai=zi[i]-zi[j];const t=dr*ar-di*ai;di=dr*ai+di*ar;dr=t}
+      const den=dr*dr+di*di||1e-30;const qr=(nr*dr+ni*di)/den,qi=(ni*dr-nr*di)/den;zr[i]-=qr;zi[i]-=qi;mx=Math.max(mx,Math.abs(qr)+Math.abs(qi))}if(mx<1e-10)break}
+  const out=[];for(let i=0;i<p;i++){if(zi[i]<=0)continue;const f=Math.atan2(zi[i],zr[i])*fs2/(2*Math.PI);const m=Math.hypot(zr[i],zi[i]);const bw=-Math.log(m)*fs2/Math.PI;if(f>150&&f<4500&&bw<500)out.push(f)}
+  return out.sort((a,b)=>a-b)}
+function syllable(x,fs,A,g,floor){const F=A.F;let peak=-1e9;for(let i=g.s;i<=g.e;i++)peak=Math.max(peak,F[i].db);
+  const isV=i=>F[i].lm/(F[i].tot||1)>.55&&F[i].hi/(F[i].tot||1)<.08&&F[i].db>peak-14;
+  let on=-1,off=-1;for(let i=g.s;i<=g.e;i++)if(isV(i)){if(on<0)on=i;off=i}
+  if(on<0)return {ok:false,g};
+  const fr=[];for(let i=g.s;i<on;i++)if(F[i].db>floor+6)fr.push(i);
+  // fricative metrics
+  let hi=0,lo=0,tot=0;const spec=new Float64Array(F[0].P.length);
+  fr.forEach(i=>{hi+=F[i].hi;lo+=F[i].lo;tot+=F[i].tot;const P=F[i].P;for(let k=0;k<P.length;k++)spec[k]+=P[k]});
+  let cw=0,cs=0;for(let k=0;k<spec.length;k++){const f=k*A.bin;if(f<1000||f>A.maxF)continue;cw+=spec[k]*f;cs+=spec[k]}
+  const vowelDb=peak;
+  let hp=-200;for(let i=g.s;i<=Math.min(on+3,g.e);i++)hp=Math.max(hp,dB(F[i].h35/A.win));const hiss=hp-peak;
+  const fricHi=fr.length?dB(hi/fr.length/A.win)-0:-200;
+  // vowel formants: early part of the vowel (where heaviness shows most)
+  const vlen=off-on+1,vs=on+Math.min(2,Math.floor(vlen/5)),ve=on+Math.max(3,Math.floor(vlen*.5));const f1=[],f2=[];
+  for(let i=vs;i<=Math.min(ve,off);i++){const o=i*A.hop;const fm=lpcFormants(x.subarray(o,o+A.win),fs);const a=fm.find(f=>f>250&&f<1100);if(a===undefined)continue;const b=fm.find(f=>f>a+250&&f<3000);f1.push(a);if(b!==undefined)f2.push(b)}
+  return {ok:true,g,on,off,hiss,fricMs:fr.length*10,fricRel:fricHi-vowelDb,voicing:tot?lo/tot:0,centroid:cs?cw/cs:0,F1:median(f1),F2:median(f2)}}
+function analyse(x,fs){const A=analyseFrames(x,fs);const {segs,floor}=segments(A);return {A,floor,syl:segs.map(g=>syllable(x,fs,A,g,floor))}}
+return {analyse};
+})();
+
+/* ================= SOUND CHECK (records → acoustic analysis) ================= */
+const SEQ={all:['د','ض','ذ','ظ','ز','ث','س','ص'],dhz:['ذ','ز','ظ'],ths:['ث','س','ص'],dad:['د','ض','ذ','ظ']};
+let SND={set:'all',file:null,res:null,busy:false,msg:''};
+const FIX={
+ 'ث':{en:'Put the tongue tip between the front teeth so a little shows, and blow softly. No whistle.',ml:'നാവിന്റെ അറ്റം മുൻപല്ലുകൾക്കിടയിൽ അൽപം പുറത്ത് വെച്ച് മെല്ലെ ഊതുക. ചൂളം വേണ്ട.'},
+ 'ذ':{en:'Tongue tip between the teeth (it should show), and keep the throat buzzing.',ml:'നാവിന്റെ അറ്റം പല്ലുകൾക്കിടയിൽ (പുറത്ത് കാണണം). തൊണ്ട വിറക്കണം.'},
+ 'ظ':{en:'Tongue tip between the teeth like ذ, then lift the back of the tongue and make the mouth full and deep.',ml:'ذ പോലെ നാവിന്റെ അറ്റം പല്ലുകൾക്കിടയിൽ. പിന്നെ നാവിന്റെ പിൻഭാഗം ഉയർത്തി വായ് നിറച്ച് കനത്തിൽ.'},
+ 'ز':{en:'Keep the tongue inside, tip behind the lower teeth, teeth almost closed, and buzz strongly like a bee.',ml:'നാവ് അകത്ത്. അറ്റം താഴത്തെ പല്ലിന് പിന്നിൽ. പല്ലുകൾ ഏതാണ്ട് അടച്ച് തേനീച്ച പോലെ ശക്തമായി മൂളുക.'},
+ 'س':{en:'Tongue tip behind the lower teeth, a clear thin whistle, mouth flat.',ml:'നാവിന്റെ അറ്റം താഴത്തെ പല്ലിന് പിന്നിൽ. നേർത്ത വ്യക്തമായ ചൂളം.'},
+ 'ص':{en:'Same place as س, but lift the back of the tongue and round the lips a little. The vowel after it must sound deep ("ṣaa" like "saw").',ml:'س ന്റെ സ്ഥാനം. നാവിന്റെ പിൻഭാഗം ഉയർത്തി ചുണ്ട് അൽപം ഉരുട്ടുക. പിന്നാലെയുള്ള ആ ശബ്ദം കനത്തതാകണം.'},
+ 'ض':{en:'Press the side of the tongue on the upper molars and lift the back of the tongue. The vowel after it must sound deep, not like دَا.',ml:'നാവിന്റെ വശം മുകളിലെ അണപ്പല്ലുകളിൽ അമർത്തി പിൻഭാഗം ഉയർത്തുക. ദാ പോലെ ലഘുവാകരുത്.'},
+ 'د':{en:'Tongue tip on the gum behind the upper teeth. Keep it light.',ml:'നാവിന്റെ അറ്റം മുകളിലെ പല്ലിന് പിന്നിലെ മോണയിൽ. ലഘുവായി.'}
+};
+function judge(letters,syl){const m={};letters.forEach((l,i)=>{if(syl[i]&&syl[i].ok)m[l]=syl[i]});const R={};
+  const put=(l,lv,txt,meter)=>{R[l]=R[l]||{lv:'ok',notes:[],meters:[]};const rank={ok:0,mid:1,bad:2};if(rank[lv]>rank[R[l].lv])R[l].lv=lv;if(txt)R[l].notes.push(txt);if(meter)R[l].meters.push(meter)};
+  letters.forEach(l=>{if(!m[l])put(l,'mid','Could not measure this one clearly. Say it louder with a clear pause.')});
+  [['ص','س'],['ظ','ذ'],['ض','د']].forEach(([h,l])=>{if(!m[h]||!m[l]||isNaN(m[h].F2)||isNaN(m[l].F2))return;const d=Math.round(m[l].F2-m[h].F2);
+    const lv=d>=200?'ok':d>=100?'mid':'bad';put(h,lv,lv==='ok'?`Heavy enough: the vowel after ${h} is ${d} Hz deeper than after ${l}.`:lv==='mid'?`A little heavy (${d} Hz deeper than ${l}). Make it heavier.`:`Sounds light, almost like ${l} (only ${Math.max(d,0)} Hz difference).`,{label:'Heaviness',v:Math.max(0,Math.min(1,d/450)),lv})});
+  const hiss=(weak,strong,need)=>{if(!m[weak]||!m[strong])return;const d=m[strong].hiss-m[weak].hiss;
+    if(m[strong].hiss<-22&&d<need){put(strong,'bad',`${strong} is too soft. It should hiss or buzz clearly.`,{label:'Hiss',v:.15,lv:'bad'});return}
+    const lv=d>=need?'ok':d>=need/2?'mid':'bad';
+    put(weak,lv,lv==='ok'?`Soft air, clearly different from ${strong}.`:lv==='mid'?`Getting close to ${strong}. Bring the tongue tip further out.`:`Sounds like ${strong}: it has the same strong hiss.`,{label:`Soft vs ${strong}`,v:Math.max(0,Math.min(1,d/(need*2))),lv})};
+  hiss('ث','س',6);hiss('ذ','ز',8);hiss('ظ','ز',8);
+  if(m['ذ']&&m['ذ'].fricMs>=30&&m['ذ'].voicing<.3)put('ذ','bad','No voice in it: it sounds like ث. Keep the throat buzzing.');
+  if(m['ظ']&&m['ظ'].fricMs>=30&&m['ظ'].voicing<.3)put('ظ','bad','No voice in it. Keep the throat buzzing.');
+  if(m['ث']&&m['ث'].fricMs>=40&&m['ث'].voicing>.6)put('ث','mid','The throat is buzzing: it may sound like ذ. Only air for ث.');
+  letters.forEach(l=>{if(!R[l])put(l,'ok','Measured fine.')});
+  return R}
+async function decodeFile(file,ac){const buf=await file.arrayBuffer();
+  const ab=await new Promise((res,rej)=>{try{const p=ac.decodeAudioData(buf,res,rej);if(p&&p.then)p.then(res,rej)}catch(e){rej(e)}});
+  const n=ab.length,x=new Float32Array(n);for(let c=0;c<ab.numberOfChannels;c++){const d=ab.getChannelData(c);for(let i=0;i<n;i++)x[i]+=d[i]/ab.numberOfChannels}
+  return {x,fs:ab.sampleRate}}
+function captureByPlaying(file,ac){return new Promise((res,rej)=>{const v=document.createElement(file.type.startsWith('video')?'video':'audio');v.setAttribute('playsinline','');v.playsInline=true;v.src=URL.createObjectURL(file);
+  const src=ac.createMediaElementSource(v),sp=ac.createScriptProcessor(4096,1,1),g=ac.createGain();g.gain.value=0;const ch=[];
+  sp.onaudioprocess=e=>ch.push(new Float32Array(e.inputBuffer.getChannelData(0)));src.connect(sp);sp.connect(g);g.connect(ac.destination);
+  v.onended=()=>{sp.disconnect();let n=0;ch.forEach(c=>n+=c.length);const x=new Float32Array(n);let o=0;ch.forEach(c=>{x.set(c,o);o+=c.length});res({x,fs:ac.sampleRate})};
+  v.onerror=()=>rej(new Error('play'));const p=v.play();if(p&&p.catch)p.catch(rej)})}
+function sndCardHTML(){const letters=SEQ[SND.set];const hist=(S.snd||[]).slice(-8);
+  return `<section class="card" aria-labelledby="sndh"><h2 id="sndh">Sound check: let the app listen to you</h2>
+   <p class="small" style="margin:0">Record yourself saying these syllables, with a <b>one-second pause</b> between each. The app measures the sound: how strong the hiss is, whether your throat buzzes, and how heavy the vowel is. Then it tells you which letter to fix.</p>
+   <div class="seg" role="group" aria-label="What to check">${[['all','All 8'],['dhz','ذ ز ظ'],['ths','ث س ص'],['dad','د ض ذ ظ']].map(([v,l])=>`<button data-set="${v}" aria-pressed="${SND.set===v}" class="${v==='all'?'':'ar'}">${l}</button>`).join('')}</div>
+   <div class="seqline" lang="ar">${letters.map(l=>`<span>${l}َا</span>`).join('<i>·</i>')}</div>
+   <div class="row"><button class="primary" id="recLive">🎙 Record now</button><label class="btn" for="recA">Or choose a voice memo</label><input class="vh" type="file" id="recA" accept="audio/*,video/*"></div>
+   <p class="tiny muted" style="margin:0">Record in a quiet room, phone 20 cm from your mouth.</p>
+   <div id="sndStatus">${SND.msg||''}</div>
+   <canvas id="spec" height="130" style="width:100%;height:130px;border-radius:10px;background:var(--paper);border:1px solid var(--line)" hidden></canvas>
+   <div id="sndRes"></div>
+   ${hist.length?`<div class="small muted">Your last checks: ${hist.map(h=>`<span class="pill ${h.bad?'red':h.mid?'amber':'green'}">${new Date((h.t)*86400000).toLocaleDateString(undefined,{day:'numeric',month:'short'})}: ${h.ok}/${h.n} good</span>`).join(' ')}</div>`:''}
+  </section>`}
+function bindSnd(){document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{SND.set=b.dataset.set;SND.msg='';R.makharij()});
+  const rl=$('#recLive');if(rl)rl.onclick=()=>startLive();
+  ['recV','recA'].forEach(id=>{const el=$('#'+id);if(el)el.onchange=()=>{const f=el.files&&el.files[0];if(f)runSnd(f)}})}
+function sndStatus(h){SND.msg=h;const el=$('#sndStatus');if(el)el.innerHTML=h}
+async function runSnd(file,byPlay){if(SND.busy)return;SND.busy=true;const letters=SEQ[SND.set];
+  sndStatus('<div class="feedback mid">Listening to your recording…</div>');
+  const AC=window.AudioContext||window.webkitAudioContext;let ac;try{ac=new AC()}catch(e){sndStatus('<div class="feedback bad">This browser cannot analyse audio.</div>');SND.busy=false;return}
+  let sig;
+  try{if(byPlay){await ac.resume();sig=await captureByPlaying(file,ac)}else sig=await decodeFile(file,ac)}
+  catch(e){SND.busy=false;try{ac.close()}catch(_){}
+    if(!byPlay){sndStatus('<div class="feedback mid">The phone could not open this file directly. <button class="sm primary" id="playAn">Analyse by playing it</button> (it plays silently for a few seconds).</div>');$('#playAn').onclick=()=>runSnd(file,true)}
+    else sndStatus('<div class="feedback bad">Could not read the sound from this file. Try a Voice Memo instead.</div>');return}
+  try{ac.close()}catch(_){}
+  SND.busy=false;return analyseSig(sig)}
+async function analyseSig(sig){const letters=SEQ[SND.set];SND.busy=true;sndStatus('<div class="feedback mid">Listening to your recording…</div>');
+  if(sig.x.length/sig.fs>60){SND.busy=false;sndStatus('<div class="feedback bad">The recording is longer than a minute. Record only the syllables.</div>');return}
+  await new Promise(r=>setTimeout(r,30));
+  const an=AN.analyse(sig.x,sig.fs);SND.busy=false;
+  drawSpec(an,letters);
+  const n=an.syl.length;
+  if(n!==letters.length){sndStatus(`<div class="feedback bad">I heard <b>${n}</b> separate sounds but expected <b>${letters.length}</b>. Leave a clear one-second pause between syllables, start after a short silence, and record again. The picture below shows what I heard.</div>`);$('#sndRes').innerHTML='';return}
+  const J=judge(letters,an.syl);
+  const ok=letters.filter(l=>J[l].lv==='ok').length,bad=letters.filter(l=>J[l].lv==='bad').length,mid=letters.filter(l=>J[l].lv==='mid').length;
+  S.snd=(S.snd||[]).concat([{t:today(),set:SND.set,n:letters.length,ok,mid,bad}]).slice(-30);logDay('snd');
+  letters.forEach(l=>{S.mk[l]=S.mk[l]||{ok:0,bad:0};J[l].lv==='ok'?S.mk[l].ok++:S.mk[l].bad++});save();
+  sndStatus(`<div class="feedback ${bad?'bad':mid?'mid':'okk'}"><b>${ok} of ${letters.length} letters sound right.</b> ${bad?'Fix the red ones first, then record again.':mid?'Nearly there.':'Excellent. Try it again tomorrow to make it a habit.'}</div>`);
+  $('#sndRes').innerHTML=`<div class="lgrid">${letters.map(l=>{const r=J[l];const fx=FIX[l];return `<article class="lcard"><div class="row" style="justify-content:space-between"><span class="ar ${LCLS[l]||''}" style="font-size:40px;line-height:1">${l}</span><span class="pill ${r.lv==='ok'?'green':r.lv==='mid'?'amber':'red'}">${r.lv==='ok'?'Good':r.lv==='mid'?'Almost':'Fix this'}</span></div>
+     ${r.meters.map(mt=>`<div class="tiny muted">${mt.label}</div><div class="bar"><i style="width:${Math.round(mt.v*100)}%;background:var(${mt.lv==='ok'?'--ok':mt.lv==='mid'?'--warn':'--danger'})"></i></div>`).join('')}
+     <div class="small">${r.notes.map(esc).join(' ')}</div>
+     ${r.lv!=='ok'&&fx?`<div class="small"><b>How to fix:</b> ${fx.en}</div><div class="ml">${fx.ml}</div>`:''}</article>`}).join('')}</div>
+   <p class="tiny muted" style="margin:0">These are sound measurements, not a teacher's ear. They are reliable for "heavy or light" and "strong hiss or soft air". They do not judge the exact makhraj of ض. Compare with a teacher when you can.</p>`}
+function drawSpec(an,letters){const cv=$('#spec');if(!cv)return;cv.hidden=false;const W=cv.clientWidth||600,H=130;const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement);const ink=cs.getPropertyValue('--ink').trim()||'#000',acc=cs.getPropertyValue('--accent').trim()||'#0a0',paper=cs.getPropertyValue('--paper').trim()||'#fff';
+  c.fillStyle=paper;c.fillRect(0,0,W,H);const F=an.A.F;if(!F.length)return;const top=18,h=H-top;
+  let mx=-1e9;F.forEach(f=>f.sp.forEach(v=>{const d=10*Math.log10(v+1e-12);if(d>mx)mx=d}));
+  const cw=W/F.length,bh=h/64;c.fillStyle=ink;
+  F.forEach((f,i)=>{for(let b=0;b<64;b++){const d=10*Math.log10(f.sp[b]+1e-12);const a=Math.max(0,Math.min(1,(d-(mx-60))/60));if(a<.05)continue;c.globalAlpha=a*a;c.fillRect(i*cw,top+h-(b+1)*bh,Math.ceil(cw),Math.ceil(bh))}});
+  c.globalAlpha=1;c.font='16px "Noto Naskh Arabic", serif';c.textAlign='center';
+  an.syl.forEach((s,k)=>{const x0=s.g.s*cw,x1=(s.g.e+1)*cw;c.fillStyle=acc;c.globalAlpha=.18;c.fillRect(x0,top,x1-x0,h);c.globalAlpha=1;c.fillStyle=acc;c.fillText(letters[k]||'?',(x0+x1)/2,15)});
+  c.fillStyle=ink;c.globalAlpha=.6;c.font='10px sans-serif';c.textAlign='left';c.fillText('8 kHz',3,top+10);c.fillText('0',3,H-3);c.globalAlpha=1}
+
+/* ================= QIRATH LIST (from the user's Notion page) ================= */
+const QIRATH_SEED=[[2,30],[2,49],[2,61],[24,35],[31,1],[31,8],[31,12],[31,16],[32,1],[33,21],[33,69],[36,55],[39,1],[39,5],[39,22],[39,24],[39,53],[39,73],[48,29],[55,1],[56,1],[68,1],[74,1],[75,1],[78,31],[85,12],[86,1],[88,17],[90,1],[91,1]];
+let AIDX=null;
+const aIndex=(s,a)=>{if(!AIDX){AIDX=new Map();Q.a.forEach((x,i)=>AIDX.set(x[0]+':'+x[1],i))}return AIDX.get(s+':'+a)};
+function rukuEnd(i){const r=Q.a[i][7];let j=i;while(j+1<Q.a.length&&Q.a[j+1][7]===r&&Q.a[j+1][0]===Q.a[i][0])j++;return Q.a[j][1]}
+function qIds(q){const a=aIndex(q.s,q.a),b=aIndex(q.s,q.e);const out=[];for(let i=a;i<=b;i++)out.push(i);return out}
+function qName(q){return `${SUR[q.s-1][1]} ${q.s}:${q.a}–${q.e}`}
+function qPages(){const ps=new Set();(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>ps.add(Q.a[i][3])));return ps}
+function markQirathPages(){const t=today();let k=0;qPages().forEach(p=>{const o=S.pages[p];if(!o||o.st==='revive')S.pages[p]={st:'active',s:3,due:t+1+(k++%7),last:0}})}
+function qirathToMem(){if(S.qm||!S.qirath)return;const by={};S.qirath.forEach(q=>{(by[q.s]=by[q.s]||[]).push([q.a,q.e])});
+  Object.keys(by).forEach(k=>{const s=+k;const iv=by[k].sort((x,y)=>x[0]-y[0]);const merged=[];iv.forEach(([a,e])=>{const l=merged[merged.length-1];if(l&&a<=l[1]+1)l[1]=Math.max(l[1],e);else merged.push([a,e])});
+    const ps=S.mem[s]=S.mem[s]||[];merged.forEach(([a,e])=>{if(!ps.some(p=>p.a<=a&&p.e>=e))ps.push({a,e,st:'good'})});ps.sort((x,y)=>x.a-y.a)});
+  S.qm=1;if(S.setup)applySetup();else save()}
+function migrateQirath(){if(S.qirath)return;const t=today();
+  S.qirath=QIRATH_SEED.map(([s,a],n)=>{const i=aIndex(s,a);return {s,a,e:rukuEnd(i),st:3,due:t+(n%5)}});
+  if(S.setup)markQirathPages();save()}
+function qDue(){const t=today();return (S.qirath||[]).map((q,n)=>[q,n]).filter(([q])=>q.due<=t).sort((x,y)=>x[0].st-y[0].st||x[0].due-y[0].due)}
+function qGrade(n,g){const q=S.qirath[n];const t=today();if(g===0)q.st=0;else if(g===1)q.st=Math.max(1,q.st-1);else if(g===2)q.st=Math.min(q.st+1,7);else q.st=Math.min(q.st+2,7);q.due=t+(g<=1?1:IV[q.st]);logDay('qirath');save()}
+let QV={cur:null};
+R.qirath=function(){const app=$('#app');if(!S.qirath)migrateQirath();
+  if(QV.cur===null||!S.qirath[QV.cur]){QV.cur=null;const t=today();
+    app.innerHTML=`<div class="stack" style="padding-top:14px">
+     <section class="card"><span class="eyebrow">From your Notion page</span><h2>📿 Qirath list</h2>
+      <p class="small muted" style="margin:0">The ${S.qirath.length} passages you recite in prayer, in mushaf order. Each one runs from its starting ayah to the end of its rukūʿ. Change the end if your passage is longer or shorter. Two come up each day for revision: recite them in your prayers, then grade them here.</p></section>
+     <div class="stack" style="gap:8px">${S.qirath.map((q,n)=>`<button class="qrow" data-q="${n}"><span class="ar qn">${esc(SUR[q.s-1][0])}</span><span class="qr">${q.s}:${q.a}–${q.e}</span><span class="pill ${q.st<=1?'red':q.st>=5?'green':q.st>=3?'':'amber'}">${q.due<=t?'due today':'in '+(q.due-t)+' d'}</span></button>`).join('')}</div>
+     <details><summary>Add a passage</summary><div><div class="row"><select id="qs" aria-label="Surah">${SUR.map((s,k)=>`<option value="${k+1}">${k+1}. ${esc(s[1])}</option>`).join('')}</select>
+       <label class="small" for="qa">from</label><input id="qa" type="number" min="1" value="1" style="width:70px"><label class="small" for="qe">to</label><input id="qe" type="number" min="1" value="10" style="width:70px"><button class="primary sm" id="qadd">Add</button></div></div></details>
+    </div>`;
+    app.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{QV.cur=+b.dataset.q;revealed=new Set();R.qirath();window.scrollTo(0,0)});
+    $('#qadd').onclick=()=>{const s=+$('#qs').value,n=SUR[s-1][2];let a=Math.min(n,Math.max(1,+$('#qa').value||1)),e=Math.min(n,Math.max(a,+$('#qe').value||a));
+      S.qirath.push({s,a,e,st:1,due:today()});S.qirath.sort((x,y)=>x.s-y.s||x.a-y.a);markQirathPages();save();toast('Passage added');R.qirath()};
+    return}
+  const q=S.qirath[QV.cur];const ids=qIds(q);const n=SUR[q.s-1][2];
+  let body='';ids.forEach(i=>{body+=ayahHTML(i,S.mode)});
+  app.innerHTML=`<div class="stack" style="padding-top:12px">
+   <div class="row" style="justify-content:space-between"><button class="sm" id="qback">‹ All passages</button><span class="small"><b>${esc(qName(q))}</b></span></div>
+   <div class="row small"><label for="qend">Passage ends at ayah</label><select id="qend">${Array.from({length:n-q.a+1},(_,k)=>q.a+k).map(v=>`<option ${v===q.e?'selected':''}>${v}</option>`).join('')}</select><button class="sm" id="qopen">Open in mushaf (p ${Q.a[ids[0]][3]})</button></div>
+   <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
+   ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button></div>':''}
+   <article class="paper"><div class="mus${S.big?' big':''}" lang="ar" id="mus">${body}</div></article>
+   <section class="card"><h3>How did it go from memory?</h3><div class="gradebar"><button class="g0" data-qg="0">Forgot<small>tomorrow</small></button><button class="g1" data-qg="1">Weak<small>tomorrow</small></button><button class="g2" data-qg="2">Good<small>later</small></button><button class="g3" data-qg="3">Strong<small>much later</small></button></div></section>
+   ${checkCardHTML(ids)}
+  </div>`;
+  $('#qback').onclick=()=>{QV.cur=null;R.qirath()};
+  $('#qend').onchange=e=>{q.e=+e.target.value;markQirathPages();save();R.qirath()};
+  $('#qopen').onclick=()=>{S.cur=Q.a[ids[0]][3];save();go('mushaf')};
+  document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.qirath()});
+  const rn=$('#revealNext');if(rn)rn.onclick=()=>{const x=ids.find(i=>!revealed.has(i));if(x!==undefined){revealed.add(x);refreshIds(ids)}else toast('Passage complete')};
+  const ha=$('#hideAll');if(ha)ha.onclick=()=>{revealed=new Set();refreshIds(ids)};
+  $('#mus').onclick=e=>{const el=e.target.closest('.ayah');if(!el)return;const i=+el.dataset.a;if(S.mode==='hide'||S.mode==='test'){revealed.has(i)?revealed.delete(i):revealed.add(i);refreshIds(ids);return}ayahSheet(i)};
+  document.querySelectorAll('[data-qg]').forEach(b=>b.onclick=()=>{qGrade(QV.cur,+b.dataset.qg);const nx=qDue().find(([x,k])=>k!==QV.cur);toast('Saved'+(nx?' · next: '+qName(nx[0]):''));QV.cur=nx?nx[1]:null;revealed=new Set();R.qirath();window.scrollTo(0,0)});
+  bindCheck();
+};
+function refreshIds(ids){$('#mus').innerHTML=ids.map(i=>ayahHTML(i,S.mode)).join('')}
+function checkCardHTML(ids){return `<section class="card" aria-labelledby="vc"><h2 id="vc">Check my recitation</h2>
+     <p class="small muted" style="margin:0">Tap <b>🎙 Recite</b>, recite from memory, then <b>Stop and check</b>. Or type from memory.</p>
+     <div class="row"><label class="small" for="from">From ayah</label><select id="from">${ids.map(i=>`<option value="${i}">${Q.a[i][0]}:${Q.a[i][1]}</option>`).join('')}</select><label class="small" for="to">to</label><select id="to">${ids.map((i,k)=>`<option value="${i}" ${k===Math.min(2,ids.length-1)?'selected':''}>${Q.a[i][0]}:${Q.a[i][1]}</option>`).join('')}</select></div>
+     <textarea id="said" lang="ar" dir="rtl" placeholder="اضغط على الميكروفون واقرأ…" aria-label="Your recitation"></textarea>
+     <div class="row"><button class="primary" id="micBtn" aria-pressed="false">🎙 Recite</button><button id="check">Check</button><button class="sm ghost" id="clear">Clear</button></div>
+     <div id="result"></div></section>`}
+function bindCheck(){$('#check').onclick=()=>doCheck();bindMic();$('#clear').onclick=()=>{$('#said').value='';$('#result').innerHTML=''};$('#from').onchange=()=>{const f=+$('#from').value;if(+$('#to').value<f)$('#to').value=f}}
+
+
+/* ================= LIVE MICROPHONE (standalone app) ================= */
+const SRC=window.SpeechRecognition||window.webkitSpeechRecognition;
+let MIC=null;
+function bindMic(){const b=$('#micBtn');if(!b)return;if(!SRC){b.hidden=true;return}
+  b.onclick=()=>{if(MIC){MIC.stop=true;try{MIC.r.stop()}catch(e){}return}
+    const ta=$('#said');const base=ta.value.trim();let acc='';
+    const start=()=>{const r=new SRC();r.lang='ar-SA';r.continuous=true;r.interimResults=true;MIC.r=r;let fin='';
+      r.onresult=e=>{let inter='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t+' ';else inter+=t}ta.value=(base+' '+acc+' '+fin+inter).replace(/\s+/g,' ').trim()};
+      r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){MIC.stop=true;$('#result').innerHTML='<div class="feedback bad">The microphone or Siri dictation is not allowed. On iPhone: Settings › Siri › turn on <b>Siri</b> or Settings › General › Keyboard › <b>Enable Dictation</b>, and allow the microphone for Safari.</div>'}};
+      r.onend=()=>{acc+=' '+fin;if(MIC&&!MIC.stop){try{start()}catch(e){finish()}}else finish()};
+      try{r.start()}catch(e){finish()}};
+    const finish=()=>{MIC=null;b.textContent='🎙 Recite';b.classList.add('primary');b.setAttribute('aria-pressed','false');if($('#said').value.trim())doCheck()};
+    MIC={stop:false};b.textContent='■ Stop and check';b.classList.remove('primary');b.setAttribute('aria-pressed','true');start()}}
+function bindMkMic(letters){const b=$('#mkMic');if(!b)return;if(!SRC||!MK.target){b.hidden=!SRC;b.disabled=!MK.target;return}
+  b.onclick=()=>{const r=new SRC();r.lang='ar-SA';r.continuous=false;r.interimResults=false;b.disabled=true;b.textContent='Listening…';
+    r.onresult=e=>{const t=e.results[0][0].transcript;$('#mkSaid').value=t;MK.said=t;MK.fb=checkLetter(MK.target,t,letters);$('#mkFb').innerHTML=MK.fb};
+    r.onerror=e=>{$('#mkFb').innerHTML='<div class="feedback mid">I could not hear a word. Try again, closer to the phone.</div>'};
+    r.onend=()=>{b.disabled=false;b.textContent='🎙 Say the word'};
+    try{r.start()}catch(e){b.disabled=false}}}
+let REC=null;
+async function startLive(){if(REC)return stopLive();
+  const AC=window.AudioContext||window.webkitAudioContext;
+  try{const ac=new AC();await ac.resume();
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const src=ac.createMediaStreamSource(stream),sp=ac.createScriptProcessor(4096,1,1),g=ac.createGain();g.gain.value=0;const ch=[];let lvl=0;
+    sp.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);ch.push(new Float32Array(d));let m=0;for(let i=0;i<d.length;i+=8)m=Math.max(m,Math.abs(d[i]));lvl=m};
+    src.connect(sp);sp.connect(g);g.connect(ac.destination);
+    REC={ac,stream,sp,ch,t0:Date.now()};
+    const btn=$('#recLive');btn.textContent='■ Stop';btn.classList.remove('primary');
+    REC.tick=setInterval(()=>{const s=((Date.now()-REC.t0)/1000).toFixed(0);sndStatus(`<div class="feedback mid">Recording… ${s}s <span class="bar" style="display:inline-block;width:120px;vertical-align:middle"><i style="width:${Math.min(100,Math.round(lvl*140))}%"></i></span> Say the syllables with pauses, then tap Stop.</div>`);if(Date.now()-REC.t0>30000)stopLive()},150);
+  }catch(e){sndStatus('<div class="feedback bad">The microphone is not allowed. On iPhone: Settings › Safari › Microphone › Allow (or tap "aA" in Safari › Website Settings › Microphone).</div>')}}
+function stopLive(){if(!REC)return;const r=REC;REC=null;clearInterval(r.tick);try{r.sp.disconnect();r.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+  const fs=r.ac.sampleRate;try{r.ac.close()}catch(e){}
+  let n=0;r.ch.forEach(c=>n+=c.length);const x=new Float32Array(n);let o=0;r.ch.forEach(c=>{x.set(c,o);o+=c.length});
+  const btn=$('#recLive');if(btn){btn.textContent='🎙 Record now';btn.classList.add('primary')}
+  analyseSig({x,fs})}
+/* ---- backup (progress lives on this phone) ---- */
+function backupHTML(){return `<details><summary>Backup my progress</summary><div>
+  <p class="small" style="margin:0">Your progress is saved on this phone only. If you delete the app icon, it is lost. Copy a backup now and then (paste it into Notes or WhatsApp to yourself).</p>
+  <div class="row"><button class="primary sm" id="bkCopy">Copy backup</button></div>
+  <label class="small" for="bkIn">Restore: paste a backup here</label><textarea id="bkIn" style="font-family:var(--f-ui);font-size:13px;direction:ltr;min-height:70px"></textarea>
+  <div class="row"><button class="sm" id="bkRestore">Restore</button><span id="bkMsg" class="small"></span></div></div></details>`}
+function bindBackup(){const c=$('#bkCopy');if(!c)return;
+  c.onclick=()=>{const t=JSON.stringify(S);const ok=()=>toast('Backup copied. Paste it somewhere safe.');
+    try{navigator.clipboard.writeText(t).then(ok,()=>{$('#bkIn').value=t;$('#bkIn').select();toast('Select all and copy the text')})}catch(e){$('#bkIn').value=t;$('#bkIn').select()}};
+  $('#bkRestore').onclick=()=>{try{const o=JSON.parse($('#bkIn').value);if(!o||!o.pages)throw 0;S=Object.assign(DEF(),o);save();$('#bkMsg').textContent='Restored.';toast('Progress restored')}catch(e){$('#bkMsg').textContent='That is not a valid backup.'}}}
+
+/* ---------------- boot ---------------- */
+function connect(){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})}
+loadData().then(()=>{try{migrateQirath();qirathToMem();route()}catch(e){$('#app').innerHTML='<div class="card" style="margin-top:16px">Something went wrong while opening: '+esc(e&&e.message||e)+'. Please send me a screenshot.</div>'}}).catch(e=>{$('#app').innerHTML='<div class="card" style="margin-top:16px">The Qur\'an text did not load ('+esc(e&&e.message||e)+'). Reload the page.</div>'});
+connect();
+})();
+</script>
+</body>
+</html>
