@@ -199,6 +199,27 @@ details.jz>div{gap:0}
 .mus.lay .anchor{color:var(--muted)}
 .mus.lay .anum{color:var(--accent);font-size:.8em}
 .hw{color:transparent;background:var(--line);border-radius:6px;opacity:.55}
+.bookwrap{perspective:1800px;position:relative}
+.book{position:relative;transform-origin:right center;transform-style:preserve-3d;will-change:transform;
+  border:1px solid var(--line);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6.5px var(--gold),0 6px 18px rgba(0,0,0,.10),-3px 0 0 -1px var(--paper),-4px 0 0 -1px var(--line),-7px 0 0 -2px var(--paper),-8px 0 0 -2px var(--line);
+  background:var(--paper);background-image:linear-gradient(to left,rgba(0,0,0,.07),rgba(0,0,0,0) 7%)}
+.book::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;background:linear-gradient(to left,rgba(0,0,0,0),rgba(0,0,0,.28))}
+.phead,.pfoot{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-ar);color:var(--gold);font-size:13px;padding:2px 10px;direction:rtl}
+.pfoot{justify-content:center;font-size:15px}
+.pfoot span{border:1px solid var(--gold);border-radius:999px;padding:0 12px;min-width:44px;text-align:center}
+.book.out-next{animation:outNext .36s ease-in forwards}.book.out-next::after{animation:shade .36s ease-in forwards}
+.book.in-next{animation:inNext .3s ease-out}
+.book.out-prev{animation:outPrev .25s ease-in forwards}
+.book.in-prev{animation:inPrev .4s ease-out}.book.in-prev::after{animation:unshade .4s ease-out}
+@keyframes outNext{to{transform:rotateY(88deg)}}
+@keyframes inNext{from{transform:scale(.985);filter:brightness(.92)}to{transform:none;filter:none}}
+@keyframes outPrev{to{transform:scale(.985);filter:brightness(.92)}}
+@keyframes inPrev{from{transform:rotateY(88deg)}to{transform:none}}
+@keyframes shade{to{opacity:1}}@keyframes unshade{from{opacity:1}to{opacity:0}}
+body.reader header.top,body.reader nav.tabs,body.reader #app .stack>:not(.bookwrap){display:none!important}
+body.reader #app{padding-bottom:16px}
+.exitread{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));z-index:40;opacity:.85}
+@media (prefers-reduced-motion:reduce){.book.out-next,.book.in-next,.book.out-prev,.book.in-prev{animation-duration:1ms}}
 .paper.mp{padding:12px 10px;overflow:hidden;min-width:0}
 .mus.lay{width:100%;min-width:0;overflow:hidden}
 .mus.lay .sn{font-family:var(--f-ar);font-size:.55em;color:var(--accent);font-weight:700;margin-inline-end:.8em;border:1px solid var(--line);border-radius:6px;padding:0 .4em}
@@ -289,7 +310,7 @@ function streak(){let d=today(),n=0;if(!S.log[d])d--;while(S.log[d]){n++;d--}ret
 const TABS=['today','mushaf','wafa','makharij','guide','qirath','salah','wish'];
 function route(){const h=location.hash.replace('#','');const tab=TABS.includes(h)?h:'today';
   document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.tab===(tab==='qirath'||tab==='salah'||tab==='wish'?'today':tab)?'page':'false'));
-  closeSheet();R[tab]();window.scrollTo(0,0)}
+  closeSheet();if(tab!=='mushaf'){document.body.classList.remove('reader');const xb=document.querySelector('.exitread');if(xb)xb.remove()}R[tab]();window.scrollTo(0,0)}
 window.addEventListener('hashchange',()=>{if(Q)route()});
 function go(tab){if(location.hash==='#'+tab)route();else location.hash=tab}
 const R={};
@@ -397,7 +418,7 @@ function bindCommon(root){
 
 /* ================= MUSHAF ================= */
 const LCLS={'ذ':'c-dh','ز':'c-z','ظ':'c-zh','ض':'c-d','ث':'c-th','س':'c-s','ص':'c-sd'};
-let revealed=new Set(),reps=0,selAyah=null;
+let revealed=new Set(),reps=0,selAyah=null,BUSY=false;
 function renderWord(w,opt){
   if(!LETTER.test(w))return esc(w);
   if(opt.hint){const m=w.match(/^(.)([ؐ-ًؚ-ٰٟۖ-ۭ]*)/);const f=m[1]+m[2];return esc(f)+('اأإآٱدذرزوؤةى'.includes(m[1])?'':'ـ')}
@@ -430,7 +451,11 @@ R.mushaf=function(){
    <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
    <div class="row small"><button class="sm" id="tColor" aria-pressed="${S.color}">Colour ذ ز ظ ض ث س ص</button><button class="sm" id="tWf" aria-pressed="${S.markwf}">Mark و/ف words</button><button class="sm" id="tBig" aria-pressed="${S.big}">Large text</button></div>
    ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button><span class="tiny muted">Recite the ayah first, then reveal.</span></div>':S.mode==='hide'?'<p class="tiny muted" style="margin:0">Tap an ayah to check it.</p>':''}
-   <article class="paper mp"><div class="mus lay${LAY.script==='i'?' ip':''}${S.big?' big':''}" lang="ar" dir="rtl" id="mus">${body}</div></article>
+   <div class="bookwrap"><article class="paper mp book" id="book" aria-label="Page ${p}. Swipe right for the next page, left for the previous one.">
+     <div class="phead"><span>${[...new Set(ids.map(i=>Q.a[i][0]))].map(x=>esc(SUR[x-1][0])).join(' · ')}</span><span>الجزء ${AD(pageJuz(p))}</span></div>
+     <div class="mus lay${LAY.script==='i'?' ip':''}${S.big?' big':''}" lang="ar" dir="rtl" id="mus">${body}</div>
+     <div class="pfoot"><span>${AD(p)}</span></div></article></div>
+   <div class="row small"><button class="sm" id="readMode">📖 Full page view</button><span class="tiny muted">Swipe right → next page, swipe left → previous page.</span></div>
    ${S.color?`<div class="legend">${Object.entries(LCLS).map(([l,c])=>`<span><span class="${c} ar" style="font-size:18px;font-weight:700">${l}</span></span>`).join('')}<span>tap Letters tab to practise</span></div>`:''}
    ${pageActions(p)}
    <section class="card" aria-labelledby="vc"><h2 id="vc">Check my recitation</h2>
@@ -444,8 +469,21 @@ R.mushaf=function(){
   $('#sur').value=firstS;
   fitPage();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitPage);
   $('#laySel').onchange=e=>{switchLayout(e.target.value);R.mushaf();toast('Mushaf changed. Your plan now follows its pages.')};
-  const setP=n=>{S.cur=Math.min(LAY.n,Math.max(1,n));revealed=new Set();reps=0;selAyah=null;save();R.mushaf();window.scrollTo(0,0)};
-  $('#next').onclick=()=>setP(p+1);$('#prev').onclick=()=>setP(p-1);
+  const setP=(n,anim)=>{S.cur=Math.min(LAY.n,Math.max(1,n));revealed=new Set();reps=0;selAyah=null;save();R.mushaf();
+    const b=$('#book');if(anim&&b){b.classList.add(anim);b.addEventListener('animationend',()=>b.classList.remove(anim),{once:true})}
+    if(document.body.classList.contains('reader'))window.scrollTo(0,0);else if(b){const y=b.getBoundingClientRect().top+window.scrollY-70;if(anim)window.scrollTo(0,Math.max(0,y));else window.scrollTo(0,0)}};
+  const turn=dir=>{const n=p+dir;if(n<1||n>LAY.n||BUSY)return;const b=$('#book');BUSY=true;
+    const cls=dir>0?'out-next':'out-prev';b.style.transform='';b.classList.add(cls);
+    setTimeout(()=>{BUSY=false;setP(n,dir>0?'in-next':'in-prev')},dir>0?330:230)};
+  $('#next').onclick=()=>turn(1);$('#prev').onclick=()=>turn(-1);
+  $('#readMode').onclick=()=>{document.body.classList.add('reader');const x=document.createElement('button');x.className='sm exitread';x.textContent='✕ Exit';x.onclick=()=>{document.body.classList.remove('reader');x.remove();R.mushaf()};document.body.appendChild(x);window.scrollTo(0,0);fitPage()};
+  (()=>{const b=$('#book');let x0=null,y0=0,dx=0,horiz=null;
+    b.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;horiz=null;b.style.transition='none'},{passive:true});
+    b.addEventListener('touchmove',e=>{if(x0===null)return;dx=e.touches[0].clientX-x0;const dy=e.touches[0].clientY-y0;if(horiz===null&&(Math.abs(dx)>8||Math.abs(dy)>8))horiz=Math.abs(dx)>Math.abs(dy);
+      if(horiz){e.preventDefault();b.style.transform=dx>0?`rotateY(${Math.min(60,dx/4)}deg)`:`translateX(${Math.max(-40,dx/5)}px)`}},{passive:false});
+    b.addEventListener('touchend',()=>{if(x0===null)return;const d=dx;x0=null;b.style.transition='transform .2s';
+      if(horiz&&Math.abs(d)>60){b.style.transition='';turn(d>0?1:-1)}else{b.style.transform='';setTimeout(()=>{b.style.transition=''},220)}})})();
+  if(!window.__keys){window.__keys=1;window.addEventListener('keydown',e=>{if(location.hash!=='#mushaf'||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;if(e.key==='ArrowLeft')$('#next')&&$('#next').click();if(e.key==='ArrowRight')$('#prev')&&$('#prev').click()})}
   $('#pg').onchange=e=>setP(+e.target.value||1);
   $('#sur').onchange=e=>{const s=+e.target.value;setP(AP[aIndex(s,1)])};
   $('#juz').onchange=e=>setP(JUZP[+e.target.value][0]);
