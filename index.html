@@ -198,6 +198,7 @@ details.jz>div{gap:0}
 .mus.lay .hw{color:transparent;background:var(--line);border-radius:6px;opacity:.55}
 .mus.lay .anchor{color:var(--muted)}
 .mus.lay .anum{color:var(--accent);font-size:.8em}
+.hw{color:transparent;background:var(--line);border-radius:6px;opacity:.55}
 .paper.mp{padding:12px 10px;overflow:hidden;min-width:0}
 .mus.lay{width:100%;min-width:0;overflow:hidden}
 .mus.lay .sn{font-family:var(--f-ar);font-size:.55em;color:var(--accent);font-weight:700;margin-inline-end:.8em;border:1px solid var(--line);border-radius:6px;padding:0 .4em}
@@ -242,7 +243,7 @@ let toastT;function toast(m){let t=$('#toast');if(!t){t=document.createElement('
 const LS='hifz-revival-v1';
 const DEF=()=>({v:1,setup:false,updated:0,juz:Object.fromEntries(Array.from({length:30},(_,i)=>[i+1,i>=16?'forgot':'none'])),
   pages:{},layout:'madani',perDay:2,cap:20,order:'asc',cur:1,mode:'read',color:true,markwf:true,big:false,
-  wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{}});
+  wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{},wish:[],newPerDay:5,salah:{}});
 let S=DEF();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);if(!o.mem){o.mem={};o.setup=false}S=Object.assign(DEF(),o)}}catch(e){}
 let dbDoc=null,saveT=null;
@@ -285,9 +286,9 @@ function markRevived(p){S.pages[p]={st:'active',s:1,due:today()+1,last:today()};
 function streak(){let d=today(),n=0;if(!S.log[d])d--;while(S.log[d]){n++;d--}return n}
 
 /* ---------------- routing ---------------- */
-const TABS=['today','mushaf','wafa','makharij','guide','qirath'];
+const TABS=['today','mushaf','wafa','makharij','guide','qirath','salah','wish'];
 function route(){const h=location.hash.replace('#','');const tab=TABS.includes(h)?h:'today';
-  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.tab===(tab==='qirath'?'today':tab)?'page':'false'));
+  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.tab===(tab==='qirath'||tab==='salah'||tab==='wish'?'today':tab)?'page':'false'));
   closeSheet();R[tab]();window.scrollTo(0,0)}
 window.addEventListener('hashchange',()=>{if(Q)route()});
 function go(tab){if(location.hash==='#'+tab)route();else location.hash=tab}
@@ -304,13 +305,14 @@ R.today=function(){
   const total=Object.keys(S.pages).length;
   const wfDue=Object.values(S.wf).filter(o=>o.due<=t).length;
   const lg=S.log[t]||{};
-  const grp=GROUPS[t%GROUPS.length];if(!S.qirath)migrateQirath();const qd=qDue();
+  const grp=GROUPS[t%GROUPS.length];if(!S.qirath)migrateQirath();const qd=qDue();const wt=wishToday();
   app.innerHTML=`<div class="stack" style="padding-top:14px">
    <div class="stats">
      <div class="stat"><div class="n">${act.length}<span class="tiny muted">/${total}</span></div><div class="l">pages back in revision</div></div>
      <div class="stat"><div class="n">${strong}</div><div class="l">pages strong</div></div>
      <div class="stat"><div class="n">${streak()}</div><div class="l">day streak</div></div>
    </div>
+   ${salahCardHTML()}
    <section class="card" aria-labelledby="tp"><div class="row" style="justify-content:space-between"><h2 id="tp">Today's plan</h2><span class="pill">${new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}</span></div>
     <div class="task"><div class="ic">١</div><div class="body"><h3>Revision first (Manzil / Sabqi)</h3>
       <div class="small muted">${todayDue.length?`${todayDue.length} page${todayDue.length>1?'s':''} due. Recite each from memory, then check and grade it. Weakest pages first.`:'Nothing due. Well done. Your revived pages come back here on schedule.'}${due.length>S.cap?` <b>${due.length-S.cap} more overdue</b> wait for tomorrow.`:''} ${lg.rev?`<span class="pill green">${lg.rev} graded today</span>`:''}</div>
@@ -321,6 +323,9 @@ R.today=function(){
     <div class="task"><div class="ic">٢</div><div class="body"><h3>Revive forgotten pages (Sabaq)</h3>
       <div class="small muted">${rv.length?`${S.perDay} page${S.perDay>1?'s':''} a day. Read, repeat ayah by ayah, then recite the whole page without looking. ${rv.length} pages left to revive (about ${Math.ceil(rv.length/S.perDay)} days).`:'Everything you marked is revived. Mark more in Settings below.'} ${lg.revive?`<span class="pill green">${lg.revive} revived today</span>`:''}</div>
       <div class="chips">${todayRevive.map(p=>`<button class="chip" data-open="${p}">p ${p} · Juz ${pageJuz(p)}</button>`).join('')}</div></div></div>
+    <div class="task"><div class="ic">+</div><div class="body"><h3>New memorisation (wish list)</h3>
+      <div class="small muted">${wt?`Today: ${esc(SUR[wt.w.s-1][1])} ${wt.w.s}:${wt.from}–${wt.to}.`:'Add the passages you want to memorise next.'} ${lg.new?`<span class="pill green">${lg.new} new ayat today</span>`:''}</div>
+      <div class="row">${wt?'<button class="primary sm" data-wish="1">Start</button>':''}<button class="sm" data-go="wish">My wish list${(S.wish||[]).length?' ('+S.wish.length+')':''}</button></div></div></div>
     <div class="task"><div class="ic">و</div><div class="body"><h3>و / ف drill (10 questions)</h3>
       <div class="small muted">${wfDue?`${wfDue} past mistakes are due again.`:'Short test on the و/ف words from your own memorised parts.'} ${lg.wf?`<span class="pill green">${lg.wf} answered today</span>`:''}</div>
       <div class="row"><button class="primary sm" data-go="wafa">Start drill</button></div></div></div>
@@ -383,7 +388,9 @@ function bindSetup(){const list=$('#memList');
 function memAyahs(){const set=new Set();memParts().forEach(p=>partIds(p).forEach(i=>set.add(i)));(S.qirath||[]).forEach(q=>qIds(q).forEach(i=>set.add(i)));return [...set].sort((a,b)=>a-b)}
 function bindCommon(root){
   root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{S.cur=+b.dataset.open;save();go('mushaf')});
-  root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go==='qirath')QV.cur=null;go(b.dataset.go)});
+  root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go==='qirath')QV.cur=null;if(b.dataset.go==='wish')WV={learn:null,test:false};go(b.dataset.go)});
+  root.querySelectorAll('[data-wish]').forEach(b=>b.onclick=()=>{WV={learn:true,test:false};SV.rev=new Set();go('wish')});
+  root.querySelectorAll('[data-slh]').forEach(b=>b.onclick=()=>{SV={pr:b.dataset.slh,test:[false,false],rev:new Set()};go('salah')});
   root.querySelectorAll('[data-qopen]').forEach(b=>b.onclick=()=>{QV.cur=+b.dataset.qopen;revealed=new Set();go('qirath')});
   root.querySelectorAll('[data-mk]').forEach(b=>b.onclick=()=>{MK.group=b.dataset.mk;go('makharij')});
 }
@@ -965,6 +972,106 @@ function fitPage(){const m=$('#mus');if(!m||!m.classList.contains('lay'))return;
   m.querySelectorAll('.ln').forEach((ln,k)=>{ln.classList.toggle('short',ws[k]*(f/base)<W*.72&&ln.querySelector('.w'))})}
 window.addEventListener('resize',()=>{clearTimeout(window.__ft);window.__ft=setTimeout(fitPage,150)});
 function layoutSelectHTML(){return `<select id="laySel" aria-label="Mushaf layout">${Object.entries(LAYOUTS).map(([k,v])=>`<option value="${k}" ${LAY&&LAY.name===k?'selected':''}>${v.t}</option>`).join('')}</select>`}
+
+
+/* ================= BEFORE SALAH (Qirath for Fajr, Maghrib, Isha) ================= */
+const PRAYERS=[['fajr','Fajr','الفجر'],['maghrib','Maghrib','المغرب'],['isha','Isha','العشاء']];
+function nextPrayer(){const d=new Date(),h=d.getHours()+d.getMinutes()/60;return h<10?'fajr':h<19.25?'maghrib':'isha'}
+const QW={};function qWords(q){const k=q.s+':'+q.a+':'+q.e;if(!QW[k])QW[k]=qIds(q).reduce((s,i)=>s+WU[i].length,0);return QW[k]}
+const qPos=q=>q.s*1000+q.a;
+function salahPick(pr,swap){const d=today();S.salah=S.salah||{};const key=d+':'+pr;
+  if(swap===undefined&&S.salah[key]&&S.salah[key].every(n=>S.qirath[n]))return S.salah[key];
+  const used=new Set();for(let k=0;k<=2;k++)PRAYERS.forEach(([p])=>{if(k===0&&p===pr)return;const v=S.salah[(d-k)+':'+p];if(v)v.forEach(n=>used.add(n))});
+  const all=S.qirath.map((q,n)=>({n,q,w:qWords(q)}));if(all.length<2)return all.map(x=>x.n);
+  const pref=pr==='maghrib'?x=>x.w:pr==='fajr'?x=>-x.w:x=>Math.abs(x.w-90);
+  const rank=arr=>arr.sort((a,b)=>(b.q.st-a.q.st)||(pref(a)-pref(b)));
+  let cur=S.salah[key]?S.salah[key].slice():null;
+  let pool=all.filter(x=>!used.has(x.n));if(pool.length<4)pool=all.slice();
+  if(cur&&swap!==undefined){const keep=cur[1-swap];const opts=rank(pool.filter(x=>!cur.includes(x.n)));const top=opts.slice(0,6);const pick=top.length?top[Math.floor(Math.random()*top.length)]:all.find(x=>!cur.includes(x.n));cur=[keep,pick.n]}
+  else{const r=rank(pool.slice());const okA=r.filter(x=>pool.some(y=>y.n!==x.n&&qPos(y.q)>qPos(x.q)&&!(y.q.s===x.q.s&&y.q.a<=x.q.e)));const top=(okA.length?okA:r).slice(0,6);const a=top[Math.floor(Math.random()*top.length)];
+    let after=rank(pool.filter(x=>x.n!==a.n&&qPos(x.q)>qPos(a.q)&&!(x.q.s===a.q.s&&x.q.a<=a.q.e)));
+    if(!after.length)after=rank(all.filter(x=>x.n!==a.n&&qPos(x.q)>qPos(a.q)));
+    const b=after.length?after[Math.floor(Math.random()*Math.min(3,after.length))]:rank(all.filter(x=>x.n!==a.n))[0];cur=[a.n,b.n]}
+  cur.sort((x,y)=>qPos(S.qirath[x])-qPos(S.qirath[y]));
+  S.salah[key]=cur;Object.keys(S.salah).forEach(k=>{if(+k.split(':')[0]<d-7)delete S.salah[k]});save();return cur}
+let SV={pr:null,test:[false,false],rev:new Set()};
+function passageHTML(ids,test){const ip=LAY&&LAY.script==='i';return ids.map(i=>{const n=WU[i].length;const hidden=test&&!SV.rev.has(i);let h='';
+  for(let k=0;k<n;k++){const t=wordText(i,k);h+=hidden&&k>0?`<span class="hw">${esc(t)}</span> `:`<span class="${hidden?'anchor':''}">${renderWord(t,hidden?{}:{color:S.color,wf:S.markwf})}</span> `}
+  return `<span class="ayah" data-a="${i}">${h}<span class="anum">${ip?'۝'+AD(Q.a[i][1]):'﴿'+AD(Q.a[i][1])+'﴾'}</span></span> `}).join('')}
+const mins=w=>Math.max(1,Math.round(w/40));
+R.salah=function(){const app=$('#app');if(!S.qirath)migrateQirath();
+  if(!S.qirath.length){app.innerHTML='<div class="stack" style="padding-top:14px"><div class="card"><h2>No Qirath passages yet</h2><button class="primary" data-go="qirath">Add passages</button></div></div>';bindCommon(app);return}
+  const pr=SV.pr||nextPrayer();const pair=salahPick(pr);const P=PRAYERS.find(x=>x[0]===pr);const ip=LAY&&LAY.script==='i';
+  app.innerHTML=`<div class="stack" style="padding-top:14px">
+   <div class="seg" role="group" aria-label="Prayer">${PRAYERS.map(([k,en,ar])=>`<button data-pr="${k}" aria-pressed="${k===pr}"><span class="ar">${ar}</span>&nbsp;${en}</button>`).join('')}</div>
+   <section class="card"><span class="eyebrow">Before ${P[1]}</span><h2>Your recitation for <span class="ar">${P[2]}</span></h2>
+    <p class="small muted" style="margin:0">Two passages you know well, in mushaf order: the first rak'ah before the second, as in the Sunnah. Read each once slowly, then hide it and say it in your mind.${pr==='maghrib'?' Maghrib gets the shorter ones.':pr==='fajr'?' Fajr gets the longer ones.':''}</p></section>
+   ${pair.map((n,r)=>{const q=S.qirath[n];const ids=qIds(q);const w=qWords(q);return `<section class="card" aria-label="Rak'ah ${r+1}">
+     <div class="row" style="justify-content:space-between"><span class="eyebrow">${r?'2nd':'1st'} rak'ah · after al-Fātiḥa</span><span class="pill ${q.st>=4?'green':q.st<=1?'red':''}">${q.st>=4?'comfortable':q.st<=1?'needs revision':'okay'}</span></div>
+     <h3><span class="ar" style="font-size:20px">${esc(SUR[q.s-1][0])}</span> · ${esc(qName(q))} <span class="tiny muted">· ${ids.length} ayat · about ${mins(w)} min</span></h3>
+     <div class="row"><button class="sm" data-tg="${r}" aria-pressed="${SV.test[r]}">${SV.test[r]?'Show all':'Hide and test'}</button><button class="sm" data-sw="${r}">Choose another</button></div>
+     <div class="paper"><div class="mus${ip?' ip':''}" lang="ar" dir="rtl" data-r="${r}" style="${ip?'font-family:IndoPak,var(--f-quran);':''}text-align:right;text-align-last:auto">${passageHTML(ids,SV.test[r])}</div></div>
+     <div class="row small"><span class="muted">After ṣalāh, how was it?</span><button class="sm" data-qg="${n}" data-g="3">Smooth</button><button class="sm" data-qg="${n}" data-g="1">Small slips</button><button class="sm" data-qg="${n}" data-g="0">Got stuck</button></div>
+   </section>`}).join('')}
+   <p class="tiny muted" style="margin:0">Choices change each day and avoid what you recited in the last two days. Edit your list in <a href="#qirath">Qirath list</a>.</p>
+  </div>`;
+  bindCommon(app);
+  app.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{SV={pr:b.dataset.pr,test:[false,false],rev:new Set()};R.salah()});
+  app.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{const r=+b.dataset.tg;SV.test[r]=!SV.test[r];R.salah()});
+  app.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{salahPick(pr,+b.dataset.sw);SV.test=[false,false];R.salah()});
+  app.querySelectorAll('.mus[data-r]').forEach(m=>m.onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;const i=+a.dataset.a;SV.rev.has(i)?SV.rev.delete(i):SV.rev.add(i);R.salah()});
+  app.querySelectorAll('[data-qg]').forEach(b=>b.onclick=()=>{qGrade(+b.dataset.qg,+b.dataset.g);toast(+b.dataset.g>=3?'Alhamdulillah. Saved.':'Saved. It will come up for revision soon.');R.salah()});
+};
+function salahCardHTML(){if(!S.qirath||S.qirath.length<2)return '';const pr=nextPrayer();const pair=salahPick(pr);const P=PRAYERS.find(x=>x[0]===pr);
+  return `<section class="card" aria-labelledby="slh"><div class="row" style="justify-content:space-between"><h2 id="slh">Before ṣalāh</h2><span class="pill gold">next: ${P[1]}</span></div>
+   <div class="small">1st rak'ah: <b>${esc(qName(S.qirath[pair[0]]))}</b><br>2nd rak'ah: <b>${esc(qName(S.qirath[pair[1]]))}</b></div>
+   <div class="row">${PRAYERS.map(([k,en,ar])=>`<button class="${k===pr?'primary':''} sm" data-slh="${k}"><span class="ar">${ar}</span>&nbsp;${en}</button>`).join('')}</div></section>`}
+
+
+/* ================= WISH LIST (new memorisation) ================= */
+let WV={learn:null,test:false};
+function wishActive(){return (S.wish||[]).find(w=>w.done<w.e)}
+function wishToday(){const w=wishActive();if(!w)return null;const from=Math.max(w.a,w.done+1);const to=Math.min(w.e,from+(S.newPerDay||5)-1);return {w,from,to}}
+function wishLearned(w,from,to){w.done=to;const ps=S.mem[w.s]=S.mem[w.s]||[];
+  const last=ps.find(p=>p.st==='good'&&p.e>=from-1&&p.a<=from);if(last)last.e=Math.max(last.e,to);else ps.push({a:from,e:to,st:'good'});ps.sort((x,y)=>x.a-y.a);
+  const t=today();for(let i=aIndex(w.s,from);i<=aIndex(w.s,to);i++){const pg=AP[i];const o=S.pages[pg];if(!o||o.st==='revive')S.pages[pg]={st:'active',s:1,due:t+1,last:t}}
+  logDay('new',to-from+1);save()}
+R.wish=function(){const app=$('#app');S.wish=S.wish||[];
+  if(WV.learn){const td=wishToday();if(!td){WV.learn=null;return R.wish()}const {w,from,to}=td;const ids=[];for(let i=aIndex(w.s,from);i<=aIndex(w.s,to);i++)ids.push(i);const ip=LAY&&LAY.script==='i';
+    app.innerHTML=`<div class="stack" style="padding-top:12px">
+     <div class="row" style="justify-content:space-between"><button class="sm" id="wback">‹ Wish list</button><span class="small"><b>${esc(SUR[w.s-1][1])} ${w.s}:${from}–${to}</b> · page ${AP[ids[0]]}</span></div>
+     <section class="card"><h3>Today's new portion</h3><ol class="small"><li>Listen to it once (button below) and read the meaning.</li><li>Read each ayah 3 times looking, then 3 times without looking.</li><li>Join: recite all of today's ayat together 3 times.</li><li>Link it to yesterday's last ayah. Then check yourself with 🎙.</li></ol>
+      <div class="row"><a class="btn" href="https://quran.com/${w.s}/${from}-${to}" target="_blank" rel="noopener">Listen and meaning on quran.com</a><button class="sm" id="wtest" aria-pressed="${WV.test}">${WV.test?'Show all':'Hide and test'}</button></div></section>
+     <div class="paper"><div class="mus${ip?' ip':''}" id="wmus" lang="ar" dir="rtl" style="${ip?'font-family:IndoPak,var(--f-quran);':''}text-align:right;text-align-last:auto">${passageHTML(ids,WV.test)}</div></div>
+     ${checkCardHTML(ids)}
+     <button class="primary" id="wdone">I have memorised ${to-from+1} ayat – add to revision</button>
+    </div>`;
+    $('#wback').onclick=()=>{WV.learn=null;R.wish()};
+    $('#wtest').onclick=()=>{WV.test=!WV.test;R.wish()};
+    $('#wmus').onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;const i=+a.dataset.a;SV.rev.has(i)?SV.rev.delete(i):SV.rev.add(i);R.wish()};
+    $('#wdone').onclick=()=>{wishLearned(w,from,to);WV={learn:null,test:false};toast('Masha Allah! Added to your revision.');R.wish()};
+    bindCheck();return}
+  const t=wishToday();
+  app.innerHTML=`<div class="stack" style="padding-top:14px">
+   <section class="card"><span class="eyebrow">New memorisation</span><h2>My wish list</h2>
+    <p class="small muted" style="margin:0">Passages you want to memorise next. Each day the app gives you a small new portion from the first unfinished one. Memorised portions go straight into your revision plan.</p>
+    <div class="row"><label class="small" for="npd">New ayat a day</label><select id="npd">${[3,5,7,10,15].map(n=>`<option ${(S.newPerDay||5)===n?'selected':''}>${n}</option>`).join('')}</select></div>
+    ${t?`<button class="primary" id="wgo">Start today's portion: ${esc(SUR[t.w.s-1][1])} ${t.w.s}:${t.from}–${t.to}</button>`:''}</section>
+   ${S.wish.length?S.wish.map((w,n)=>{const tot=w.e-w.a+1,dn=Math.max(0,Math.min(tot,w.done-w.a+1));return `<div class="card" style="gap:6px"><div class="row" style="justify-content:space-between"><span><span class="ar" style="font-size:19px">${esc(SUR[w.s-1][0])}</span> <span class="small">${w.s}:${w.a}–${w.e}</span></span><span class="pill ${dn>=tot?'green':''}">${dn>=tot?'memorised':dn+' / '+tot+' ayat'}</span></div>
+      <div class="bar"><i style="width:${Math.round(100*dn/tot)}%"></i></div>
+      <div class="row"><button class="sm ghost" data-wu="${n}" ${n?'':'disabled'}>Move up</button><button class="sm ghost" data-wd="${n}" ${n<S.wish.length-1?'':'disabled'}>Move down</button><button class="sm ghost" data-wx="${n}">Remove</button></div></div>`}).join(''):'<div class="card small muted">Your wish list is empty. Add the first passage below, for example Surah al-Mulk or Yā-Sīn.</div>'}
+   <section class="card"><h3>Add a passage</h3><div class="row"><select id="ws" aria-label="Surah">${SUR.map((x,k)=>`<option value="${k+1}">${k+1}. ${esc(x[1])}</option>`).join('')}</select>
+     <label class="small" for="wa">from</label><input id="wa" type="number" min="1" value="1" style="width:70px"><label class="small" for="we">to</label><input id="we" type="number" min="1" placeholder="end" style="width:70px"><button class="primary sm" id="wadd">Add</button></div>
+     <p class="tiny muted" style="margin:0">Leave "to" empty for the whole surah.</p></section>
+  </div>`;
+  $('#npd').onchange=e=>{S.newPerDay=+e.target.value;save();R.wish()};
+  const g=$('#wgo');if(g)g.onclick=()=>{WV={learn:true,test:false};SV.rev=new Set();R.wish();window.scrollTo(0,0)};
+  $('#ws').onchange=()=>{$('#we').placeholder=SUR[+$('#ws').value-1][2]};
+  $('#wadd').onclick=()=>{const s=+$('#ws').value,n=SUR[s-1][2];const a=Math.min(n,Math.max(1,+$('#wa').value||1));const e=Math.min(n,Math.max(a,+$('#we').value||n));S.wish.push({s,a,e,done:a-1});save();toast('Added to your wish list');R.wish()};
+  app.querySelectorAll('[data-wx]').forEach(b=>b.onclick=()=>{S.wish.splice(+b.dataset.wx,1);save();R.wish()});
+  app.querySelectorAll('[data-wu]').forEach(b=>b.onclick=()=>{const n=+b.dataset.wu;[S.wish[n-1],S.wish[n]]=[S.wish[n],S.wish[n-1]];save();R.wish()});
+  app.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{const n=+b.dataset.wd;[S.wish[n+1],S.wish[n]]=[S.wish[n],S.wish[n+1]];save();R.wish()});
+};
 
 
 /* ================= LIVE MICROPHONE (standalone app) ================= */
