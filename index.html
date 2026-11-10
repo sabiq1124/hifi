@@ -233,7 +233,7 @@ html,body{overflow-x:hidden}
 .player{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:26;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12);padding:8px max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px))}
 .player .in{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
 .player .pl1{justify-content:space-between;flex-wrap:nowrap}.player .plref{font-weight:600;white-space:nowrap}.player .plbtns{display:flex;gap:6px;margin-inline-start:auto}
-.player .pl2{gap:8px}.player select{padding:4px 6px;font-size:13px}
+.player .pl2{gap:8px}.player .pl3{gap:6px}.player select{padding:4px 6px;font-size:13px}
 body.reader .player{bottom:env(safe-area-inset-bottom,0px)}
 body.playing #app{padding-bottom:210px}
 .sheet.tall{max-height:92vh}
@@ -1154,38 +1154,51 @@ function tjLegendHTML(){return `<div class="legend tjleg">${TJLEG.map(([c,en,ar]
 function wordsHTML(i,opt){const n=WU[i].length;let h='';for(let k=0;k<n;k++){opt.tj=tjWord(i,k);h+=renderWord(wordText(i,k),opt)+' '}opt.tj=null;return h}
 
 /* ---- audio player ---- */
-const AUD={el:null,on:false,paused:false,from:0,to:0,i:0,eN:0,aN:0,s:0,iv:null,gapT:null};
+const AUD={each:null,el:null,want:null,lastSeek:0,wantT:0,on:false,paused:false,from:0,to:0,i:0,eN:0,aN:0,s:0,iv:null,gapT:null};
 const audUrl=s=>`https://cdn.mp3quran.net/audio/ahmad-nufais/r1/${String(s).padStart(3,'0')}.mp3`;
-function tim(i){const a=Q.a[i];const t=TIM&&TIM[a[0]-1]&&TIM[a[0]-1][a[1]-1];return t?[t[0]/100,t[1]/100]:null}
+const PERAYAH={}; // every surah is Ahmad al-Nufais (timings: quranpedia.net, checked against the recordings)
+const per=i=>PERAYAH[Q.a[i][0]];
+function tim(i){const a=Q.a[i];if(per(i))return [0,1e9];const t=TIM&&TIM[a[0]-1]&&TIM[a[0]-1][a[1]-1];if(!t)return null;const o=S.aoff||{};
+  const nx=i+1<Q.a.length&&Q.a[i+1][0]===a[0]?(o[i+1]||0):0;return [t[0]/100+(o[i]||0),t[1]/100+nx]}
 function audSet(){S.aud=Object.assign({each:1,all:1,rate:1,gap:false},S.aud||{});return S.aud}
-function playRange(from,to){
+function playRange(from,to,once){
   if(!ONLINE){toast('Audio plays in the Hifz app on your iPhone');return}
   if(!TIM){toast('Audio timings did not load. Check the internet and reopen.');return}
   if(!AUD.el){const el=new Audio();el.preload='auto';AUD.el=el;
     el.addEventListener('error',()=>{if(AUD.on){toast('Could not load the recitation. Check the internet.');audStop()}});
-    el.addEventListener('waiting',()=>audBar('Loading…'));el.addEventListener('playing',()=>audBar());}
-  audSet();clearTimeout(AUD.gapT);Object.assign(AUD,{on:true,paused:false,from:Math.min(from,to),to:Math.max(from,to),eN:0,aN:0});
+    el.addEventListener('waiting',()=>audBar('Loading…'));el.addEventListener('timeupdate',()=>audTick());el.addEventListener('ended',()=>{if(AUD.on&&per(AUD.i)&&!AUD.gapT)audEnd()});['loadedmetadata','loadeddata','canplay','playing','seeked'].forEach(ev=>el.addEventListener(ev,()=>{audSeek();if(AUD.want===null)audBar()}));}
+  audSet();clearTimeout(AUD.gapT);AUD.each=once&&once.each||null;Object.assign(AUD,{on:true,paused:false,from:Math.min(from,to),to:Math.max(from,to),eN:0,aN:0});
   audGo(AUD.from);clearInterval(AUD.iv);AUD.iv=setInterval(audTick,80)}
+function audSeek(){const el=AUD.el;if(AUD.want===null||!el||el.readyState<1||el.seeking)return;
+  if(Math.abs(el.currentTime-AUD.want)<0.6){AUD.want=null;el.muted=false;audBar();return}
+  if(Date.now()-AUD.lastSeek>600){AUD.lastSeek=Date.now();try{el.currentTime=AUD.want}catch(e){}}}
 function audGo(i){AUD.i=i;const a=Q.a[i],t=tim(i),el=AUD.el;if(!t){audStop();return}
-  if(AUD.s!==a[0]||!el.src){AUD.s=a[0];el.src=audUrl(a[0])+'#t='+t[0];el.addEventListener('loadedmetadata',()=>{try{el.currentTime=tim(AUD.i)[0]}catch(e){}},{once:true})}
-  else{try{el.currentTime=t[0]}catch(e){}}
-  el.playbackRate=S.aud.rate;const p=el.play();if(p&&p.catch)p.catch(()=>{AUD.paused=true;audBar()});AUD.paused=false;audHL();audBar()}
-function audTick(){if(!AUD.on||AUD.paused||AUD.gapT)return;const el=AUD.el,t=tim(AUD.i);if(!t||el.paused)return;
+  const pa=per(i);if(pa){AUD.want=null;el.muted=false;const u=pa.base+String(a[0]).padStart(3,'0')+String(a[1]).padStart(3,'0')+'.mp3';AUD.s=null;
+    if(el.src!==u)el.src=u;else{try{el.currentTime=0}catch(e){}}el.playbackRate=S.aud.rate;const p=el.play();if(p&&p.catch)p.catch(()=>{AUD.paused=true;audBar()});AUD.paused=false;audHL();audBar();return}
+  AUD.want=t[0];AUD.lastSeek=0;AUD.wantT=Date.now();el.muted=true; // stay silent until we are really at this ayah
+  if(AUD.s!==a[0]||!el.src){AUD.s=a[0];el.src=audUrl(a[0])+'#t='+t[0]}
+  audSeek();
+  el.playbackRate=S.aud.rate;const p=el.play();if(p&&p.catch)p.catch(()=>{AUD.paused=true;audBar()});AUD.paused=false;audHL();audBar(AUD.want!==null?'Loading…':undefined)}
+function audTick(){if(!AUD.on||AUD.paused||AUD.gapT)return;const el=AUD.el,t=tim(AUD.i);if(!t)return;
+  if(AUD.want!==null){audSeek();if(AUD.want!==null&&Date.now()-AUD.wantT>20000){AUD.wantT=Date.now();toast('The recitation is loading slowly. Check the internet.')}return}
+  if(el.paused||per(AUD.i))return;
+  // safety: if the phone drifted outside this ayah, bring it back
+  if(el.currentTime<t[0]-1.5){AUD.want=t[0];AUD.lastSeek=0;AUD.wantT=Date.now();el.muted=true;audSeek();return}
   if(el.currentTime>=t[1]-0.06)audEnd()}
 function audEnd(){const A=S.aud;AUD.eN++;
-  if(A.gap){const t=tim(AUD.i);AUD.el.pause();const ms=Math.min(30000,Math.max(1500,(t[1]-t[0])*1000/(A.rate||1)));
+  if(A.gap){const t=tim(AUD.i);AUD.el.pause();const len=per(AUD.i)?(AUD.el.duration||5):(t[1]-t[0]);const ms=Math.min(30000,Math.max(1500,len*1000/(A.rate||1)));
     AUD.gapT=setTimeout(()=>{AUD.gapT=null;if(AUD.on)audCont()},ms);audBar('Your turn – repeat it…');return}
   audCont()}
-function audCont(){const A=S.aud,el=AUD.el;
-  if(AUD.eN<A.each||A.each===0){audGo(AUD.i);return}
+function audCont(){const A=S.aud,el=AUD.el,EA=AUD.each||A.each;
+  if(AUD.eN<EA||EA===0){audGo(AUD.i);return}
   AUD.eN=0;if(AUD.i<AUD.to){const nx=AUD.i+1,tn=tim(nx),tc=tim(AUD.i);
-    if(Q.a[nx][0]===Q.a[AUD.i][0]&&tn&&Math.abs(tn[0]-tc[1])<0.3&&!el.paused){AUD.i=nx;audHL();audBar()}else audGo(nx);return}
+    if(!per(nx)&&!per(AUD.i)&&Q.a[nx][0]===Q.a[AUD.i][0]&&tn&&tn[0]>=tc[1]-0.3&&tn[0]-tc[1]<2.5&&!el.paused){AUD.i=nx;audHL();audBar()}else audGo(nx);return}
   AUD.aN++;if(A.all===0||AUD.aN<A.all){audGo(AUD.from);return}
   audStop();toast('Finished')}
 function audToggle(){if(!AUD.on)return;const el=AUD.el;if(AUD.gapT){clearTimeout(AUD.gapT);AUD.gapT=null;AUD.paused=false;audCont();return}
   if(el.paused){AUD.paused=false;const p=el.play();if(p&&p.catch)p.catch(()=>{})}else{AUD.paused=true;el.pause()}audBar()}
 function audStep(d){if(!AUD.on)return;clearTimeout(AUD.gapT);AUD.gapT=null;const n=Math.min(Q.a.length-1,Math.max(0,AUD.i+d));AUD.eN=0;if(n>AUD.to)AUD.to=n;if(n<AUD.from)AUD.from=n;audGo(n)}
-function audStop(){AUD.on=false;clearInterval(AUD.iv);clearTimeout(AUD.gapT);AUD.gapT=null;if(AUD.el){AUD.el.pause()}document.body.classList.remove('playing');
+function audStop(){AUD.on=false;AUD.want=null;if(AUD.el)AUD.el.muted=false;clearInterval(AUD.iv);clearTimeout(AUD.gapT);AUD.gapT=null;if(AUD.el){AUD.el.pause()}document.body.classList.remove('playing');
   const b=$('#player');if(b)b.remove();document.querySelectorAll('.playing').forEach(e=>e.classList.remove('playing'))}
 function audHL(noTurn){document.querySelectorAll('#app .playing').forEach(e=>e.classList.remove('playing'));if(!AUD.on)return;
   const els=document.querySelectorAll(`#app [data-a="${AUD.i}"]`);
@@ -1194,21 +1207,28 @@ function audHL(noTurn){document.querySelectorAll('#app .playing').forEach(e=>e.c
   if(els[0]&&!document.body.classList.contains('reader')){const r=els[0].getBoundingClientRect();if(r.top<70||r.bottom>innerHeight-170)els[0].scrollIntoView({block:'center',behavior:'smooth'})}}
 new MutationObserver(()=>{if(AUD.on){clearTimeout(window.__ah);window.__ah=setTimeout(()=>audHL(true),30)}}).observe(document.getElementById('app'),{childList:true});
 const OPT=(v,arr,lab)=>arr.map(x=>`<option value="${x}" ${+v===x?'selected':''}>${lab(x)}</option>`).join('');
-function audBar(msg){if(!AUD.on)return;const A=audSet();let b=$('#player');
+function audMeta(){try{if(!('mediaSession' in navigator))return;const a=Q.a[AUD.i];
+  navigator.mediaSession.metadata=new MediaMetadata({title:`${SUR[a[0]-1][1]} ${a[0]}:${a[1]}`,artist:per(AUD.i)?per(AUD.i).name:'Ahmad al-Nufais',album:'Hifz Revival'});
+  if(!AUD.ms){AUD.ms=1;const h=(k,f)=>{try{navigator.mediaSession.setActionHandler(k,f)}catch(e){}};h('play',()=>{if(AUD.on&&AUD.el.paused)audToggle()});h('pause',()=>{if(AUD.on&&!AUD.el.paused)audToggle()});h('nexttrack',()=>audStep(1));h('previoustrack',()=>audStep(-1))}}catch(e){}}
+function audBar(msg){if(!AUD.on)return;const A=audSet();let b=$('#player');audMeta();
   if(!b){b=document.createElement('div');b.id='player';b.className='player';b.setAttribute('role','region');b.setAttribute('aria-label','Recitation player');document.body.appendChild(b);document.body.classList.add('playing');
     b.innerHTML=`<div class="in"><div class="row pl1"><span class="plref" id="plRef"></span><span class="tiny muted" id="plMsg"></span>
       <span class="plbtns"><button class="sm" id="plPrev" aria-label="Previous ayah">⏮</button><button class="sm primary" id="plPlay" aria-label="Play or pause">❚❚</button><button class="sm" id="plNext" aria-label="Next ayah">⏭</button><button class="sm ghost" id="plX" aria-label="Stop">✕</button></span></div>
-      <div class="row pl2"><label class="tiny">Each ayah <select id="plEach">${OPT(A.each,[1,2,3,5,7,10,20,0],x=>x?x+'×':'∞')}</select></label>
+      <div class="row pl2"><label class="tiny">Each ayah <select id="plEach">${OPT(AUD.each||A.each,[1,2,3,5,7,10,20,0],x=>x?x+'×':'∞')}</select></label>
       <label class="tiny">Whole part <select id="plAll">${OPT(A.all,[1,2,3,5,10,0],x=>x?x+'×':'∞')}</select></label>
       <label class="tiny">Speed <select id="plRate">${OPT(A.rate,[0.75,1,1.25,1.5],x=>x+'×')}</select></label>
-      <button class="sm" id="plGap" aria-pressed="${A.gap}" title="Pause after each ayah so you can repeat it">Pause for me to repeat</button></div></div>`;
+      <button class="sm" id="plGap" aria-pressed="${A.gap}" title="Pause after each ayah so you can repeat it">Pause for me to repeat</button></div>
+      <div class="row pl3"><span class="tiny muted">Ayah starts too early or late?</span><button class="sm" id="plE" aria-label="Start this ayah earlier">⇤ earlier</button><button class="sm" id="plL" aria-label="Start this ayah later">later ⇥</button><span class="tiny" id="plOff"></span></div></div>`;
+    const nudge=d=>{const i=AUD.i;if(per(i))return;S.aoff=S.aoff||{};const v=Math.round(((S.aoff[i]||0)+d)*10)/10;if(v)S.aoff[i]=v;else delete S.aoff[i];save();AUD.eN=0;audGo(i)};
+    $('#plE').onclick=()=>nudge(-0.3);$('#plL').onclick=()=>nudge(0.3);
     $('#plPlay').onclick=audToggle;$('#plPrev').onclick=()=>audStep(-1);$('#plNext').onclick=()=>audStep(1);$('#plX').onclick=audStop;
-    $('#plEach').onchange=e=>{S.aud.each=+e.target.value;AUD.eN=0;save()};$('#plAll').onchange=e=>{S.aud.all=+e.target.value;AUD.aN=0;save()};
+    $('#plEach').onchange=e=>{S.aud.each=+e.target.value;AUD.each=null;AUD.eN=0;save()};$('#plAll').onchange=e=>{S.aud.all=+e.target.value;AUD.aN=0;save()};
     $('#plRate').onchange=e=>{S.aud.rate=+e.target.value;AUD.el.playbackRate=S.aud.rate;save()};
     $('#plGap').onclick=e=>{S.aud.gap=!S.aud.gap;e.currentTarget.setAttribute('aria-pressed',S.aud.gap);save()}}
   const nv=document.querySelector('nav.tabs');b.style.bottom=nv&&nv.offsetParent!==null&&!document.body.classList.contains('reader')?nv.offsetHeight+'px':'';
   const a=Q.a[AUD.i];$('#plRef').innerHTML=`<span class="ar">${esc(SUR[a[0]-1][0])}</span> ${a[0]}:${a[1]}`;
-  $('#plMsg').textContent=msg||(A.each!==1?`ayah ${AUD.eN+1}/${A.each||'∞'}`:'')+(A.all!==1?` · round ${AUD.aN+1}/${A.all||'∞'}`:'');
+  $('#plMsg').textContent=(per(AUD.i)?'Mishary al-Afasy · ':'')+(msg||((AUD.each||A.each)!==1?`ayah ${AUD.eN+1}/${(AUD.each||A.each)||'∞'}`:'')+(A.all!==1?` · round ${AUD.aN+1}/${A.all||'∞'}`:''));
+  const of=(S.aoff||{})[AUD.i];$('#plOff').textContent=of?`moved ${of>0?'+':''}${of}s`:'';
   $('#plPlay').textContent=(AUD.paused||AUD.el.paused)&&!AUD.gapT?'▶':'❚❚'}
 
 /* ---- tap an ayah: meanings, i'rab, tafsir, similar verses ---- */
@@ -1220,19 +1240,20 @@ function toParas(html,cls){html=String(html||'').replace(/<sup[^>]*>.*?<\/sup>/g
   return t.split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>`<p class="${cls||''}">${esc(x)}</p>`).join('')||'<p class="small muted">Nothing found for this ayah.</p>'}
 const isDark=()=>document.documentElement.dataset.theme==='dark'||(document.documentElement.dataset.theme!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
 function qpFrame(s,a,type,book){return `<iframe title="${type}" src="https://quranpedia.net/embed?surah=${s}&ayah=${a}&type=${type}&book=${book}&theme=${isDark()?'dark':'sepia'}&size=110&radius=sm"></iframe><p class="tiny muted">From quranpedia.net (الموسوعة القرآنية). Use its back arrow to choose another book.</p>`}
-async function loadMeaning(i,tab){const a=Q.a[i],s=a[0],n=a[1],box=$('#mBody');if(!box)return;S.mtab=tab;save();
+let MTOK=0;
+async function loadMeaning(i,tab){const a=Q.a[i],s=a[0],n=a[1],box=$('#mBody');if(!box)return;S.mtab=tab;save();const tok=++MTOK;const put=h=>{if(tok===MTOK&&box.isConnected)box.innerHTML=h};
   document.querySelectorAll('#mTabs [data-mt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.mt===tab));
   if(tab==='sim'){box.innerHTML=simHTML(i);box.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>{const j=+b.dataset.sim;closeSheet();S.cur=AP[j];save();go('mushaf');setTimeout(()=>ayahSheet(j),60)});return}
   if(!ONLINE){box.innerHTML='<p class="small">Meanings and tafsir open in the <b>Hifz app on your iPhone</b> (sabiq1124.github.io/hifi). The <b>Similar</b> tab works here too.</p>';return}
   box.innerHTML='<p class="small muted">Loading…</p>';
   try{
-    if(tab==='ml'){const j=await getJSON(`https://api.quran.com/api/v4/quran/translations/37?verse_key=${s}:${n}`);box.innerHTML=`<div lang="ml" class="mltext">${toParas(j.translations[0].text)}</div><p class="tiny muted">Malayalam: Abdul Hameed &amp; Kunhi Mohammed</p>`}
-    else if(tab==='ik'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/14/by_ayah/${s}:${n}`);box.innerHTML=`<div lang="ar" dir="rtl" class="artext">${toParas(j.tafsir.text)}</div><p class="tiny muted">تفسير ابن كثير · quran.com. Ibn Kathir often explains a group of ayat together.</p>`}
-    else if(tab==='en'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/817/by_ayah/${s}:${n}`);box.innerHTML=`<div class="entext">${toParas(j.tafsir.text)}</div><p class="tiny muted">Tazkirul Quran (Maulana Wahiduddin Khan) – a short, simple English tafsir · quran.com</p>`}
+    if(tab==='ml'){const j=await getJSON(`https://api.quran.com/api/v4/quran/translations/37?verse_key=${s}:${n}`);put(`<div lang="ml" class="mltext">${toParas(j.translations[0].text)}</div><p class="tiny muted">Malayalam: Abdul Hameed &amp; Kunhi Mohammed</p>`)}
+    else if(tab==='ik'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/14/by_ayah/${s}:${n}`);put(`<div lang="ar" dir="rtl" class="artext">${toParas(j.tafsir.text)}</div><p class="tiny muted">تفسير ابن كثير · quran.com. Ibn Kathir often explains a group of ayat together.</p>`)}
+    else if(tab==='en'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/817/by_ayah/${s}:${n}`);put(`<div class="entext">${toParas(j.tafsir.text)}</div><p class="tiny muted">Tazkirul Quran (Maulana Wahiduddin Khan) – a short, simple English tafsir · quran.com</p>`)}
     else if(tab==='irab')box.innerHTML=qpFrame(s,n,'e3rab',316);
     else if(tab==='safwa')box.innerHTML=qpFrame(s,n,'tafsir',160);
     else if(tab==='zilal'){const u=`https://quran-tafsir.net/qotb/sura${s}-aya${n}.html`;box.innerHTML=`<iframe title="Fi Zilal al-Quran" src="${u}"></iframe><p class="tiny muted">في ظلال القرآن – سيد قطب · quran-tafsir.net · <a href="${u}" target="_blank" rel="noopener">open in Safari</a>. Fi Zilal explains passages, so scroll to find this ayah.</p>`}
-  }catch(e){box.innerHTML='<p class="small">Could not load. Check the internet and tap the tab again.</p>'}}
+  }catch(e){put('<p class="small">Could not load. Check the internet and tap the tab again.</p>')}}
 function simWords(j){return WU[j].map((_,k)=>wordText(j,k)).filter(w=>LETTER.test(w))}
 function lcsKeep(A,B){const a=A.map(norm),b=B.map(norm),n=a.length,m=b.length;const L=Array.from({length:n+1},()=>new Int16Array(m+1));
   for(let x=n-1;x>=0;x--)for(let y=m-1;y>=0;y--)L[x][y]=a[x]===b[y]?L[x+1][y+1]+1:Math.max(L[x+1][y],L[x][y+1]);
@@ -1253,7 +1274,7 @@ function ayahSheet(i){selAyah=i;const a=Q.a[i];const s=a[0];const last=aIndex(s,
    <div id="mBody" class="mbody" role="tabpanel"></div>`);
   $('.sheet').classList.add('tall');
   $('#shPlay').onclick=()=>{closeSheet();playRange(i,last)};
-  $('#shRep').onclick=()=>{closeSheet();audSet();if(S.aud.each===1)S.aud.each=5;S.aud.all=1;save();playRange(i,i)};
+  $('#shRep').onclick=()=>{closeSheet();audSet();playRange(i,i,{each:S.aud.each>1?S.aud.each:5})};
   $('#shCheck').onclick=()=>{closeSheet();const f=$('#from'),t=$('#to');if(f&&[...f.options].some(o=>+o.value===i)){f.value=i;t.value=i}const sd=$('#said');if(sd){sd.focus();sd.scrollIntoView({block:'center'})}};
   $('#shMist').onclick=()=>{$('#mistForm').hidden=false;$('#mistNote').focus()};
   $('#mistSave').onclick=()=>{S.mistakes.unshift({a:i,n:$('#mistNote').value.trim()||'Mistake',t:today()});save();closeSheet();toast('Saved to your mistakes book (Wa / Fa tab)')};

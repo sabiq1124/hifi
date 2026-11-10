@@ -1,4 +1,4 @@
-const V='hifz-v6';const CORE=['./','index.html','quran.json','layouts.json','indopak.woff2','timing.json','similar.json','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png'];
+const V='hifz-v8';const CORE=['./','index.html','quran.json','layouts.json','indopak.woff2','timing.json','similar.json','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=='hifz-api').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 const keep=(name,req,res)=>{if(res&&res.ok){const c=res.clone();caches.open(name).then(x=>x.put(req,c))}return res};
