@@ -20,7 +20,7 @@ body{margin:0}
 /* Layout: one-column phone app, sticky top bar, fixed bottom tab bar; mushaf page sits on a "paper" surface. */
 :root{
   --bg:#EEF3F1; --surface:#FFFFFF; --paper:#FFFDF8; --ink:#13232E; --muted:#5A6B70; --line:#D6E0DE;
-  --accent:#0E6B5E; --accent-ink:#FFFFFF; --accent-soft:#DCEEE9; --gold:#A86A12; --gold-soft:#F6E9D2;
+  --accent:#0E6B5E;--tjg:#9A9A9A;--tj3:#537FFF;--tj4:#4050FF;--tj5:#000EBC;--tj6:#2144C1;--tj7:#DD0008;--tj8:#D500B7;--tj9:#9400A8;--tj10:#58B800;--tj11:#26BFFD;--tj12:#169777;--tj13:#169200;--tj16:#FF7E1E; --accent-ink:#FFFFFF; --accent-soft:#DCEEE9; --gold:#A86A12; --gold-soft:#F6E9D2;
   --danger:#B42318; --danger-soft:#FBE4E1; --ok:#1C7A3B; --ok-soft:#DDF2E3; --warn:#9A5B00; --warn-soft:#FBEBCF;
   --l-dh:#1D5FD1; --l-z:#0F8A8A; --l-zh:#7A3FC2; --l-d:#C0262D; --l-th:#D06A00; --l-s:#2C8A2C; --l-sd:#8A5A2B;
   --s0:#E4E9E8; --s1:#F2C6BE; --s2:#F3DDA9; --s3:#BFE0C5; --s4:#7FC195; --s5:#2F8F55;
@@ -32,13 +32,13 @@ body{margin:0}
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0E1517; --surface:#162125; --paper:#1A2428; --ink:#E6EEEC; --muted:#97A8AA; --line:#2A3A3E;
-  --accent:#4DBFAC; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
+  --accent:#4DBFAC;--tjg:#8A9192;--tj3:#8FA8FF;--tj4:#8C95FF;--tj5:#7C86FF;--tj6:#7E9BFF;--tj7:#FF6B6E;--tj8:#F27BE0;--tj9:#CF86E6;--tj10:#8AD94A;--tj11:#5FD3FF;--tj12:#3CC9A0;--tj13:#5CC94A;--tj16:#FFA057; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
   --danger:#F2897C; --danger-soft:#3E1F1C; --ok:#6CCB8C; --ok-soft:#1A3624; --warn:#F0B45A; --warn-soft:#3A2B12;
   --l-dh:#7FA9FF; --l-z:#4FD1CF; --l-zh:#C49BFF; --l-d:#FF8A8F; --l-th:#FFB061; --l-s:#7FD67F; --l-sd:#D9A877;
   --s0:#26343A; --s1:#5A2E2A; --s2:#5C4A20; --s3:#2E5A3A; --s4:#3C8A5B; --s5:#5FD18C; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E1517; --surface:#162125; --paper:#1A2428; --ink:#E6EEEC; --muted:#97A8AA; --line:#2A3A3E;
-  --accent:#4DBFAC; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
+  --accent:#4DBFAC;--tjg:#8A9192;--tj3:#8FA8FF;--tj4:#8C95FF;--tj5:#7C86FF;--tj6:#7E9BFF;--tj7:#FF6B6E;--tj8:#F27BE0;--tj9:#CF86E6;--tj10:#8AD94A;--tj11:#5FD3FF;--tj12:#3CC9A0;--tj13:#5CC94A;--tj16:#FFA057; --accent-ink:#06211C; --accent-soft:#1B3A35; --gold:#E2B25F; --gold-soft:#3A2E17;
   --danger:#F2897C; --danger-soft:#3E1F1C; --ok:#6CCB8C; --ok-soft:#1A3624; --warn:#F0B45A; --warn-soft:#3A2B12;
   --l-dh:#7FA9FF; --l-z:#4FD1CF; --l-zh:#C49BFF; --l-d:#FF8A8F; --l-th:#FFB061; --l-s:#7FD67F; --l-sd:#D9A877;
   --s0:#26343A; --s1:#5A2E2A; --s2:#5C4A20; --s3:#2E5A3A; --s4:#3C8A5B; --s5:#5FD18C; color-scheme:dark}
@@ -226,6 +226,31 @@ body.reader #app{padding-bottom:16px}
 html,body{overflow-x:hidden}
 @media (max-width:420px){.mus{font-size:24px}.mus.big{font-size:28px}.qbox{font-size:25px}.stats .n{font-size:21px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+[hidden]{display:none!important}
+/* listen + tajweed + meanings */
+.w.playing,.ayah.playing{background:var(--gold-soft);border-radius:6px;box-shadow:0 0 0 2px var(--gold-soft)}
+.player{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:26;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12);padding:8px max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px))}
+.player .in{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.player .pl1{justify-content:space-between;flex-wrap:nowrap}.player .plref{font-weight:600;white-space:nowrap}.player .plbtns{display:flex;gap:6px;margin-inline-start:auto}
+.player .pl2{gap:8px}.player select{padding:4px 6px;font-size:13px}
+body.reader .player{bottom:env(safe-area-inset-bottom,0px)}
+body.playing #app{padding-bottom:210px}
+.sheet.tall{max-height:92vh}
+.mtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.mtabs button{flex:none;font-size:14px;padding:6px 12px;border-radius:999px}
+.mtabs button.ar{font-family:var(--f-ar);font-size:16px}
+.mtabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mbody{min-height:140px}.mbody p{margin:0 0 .7em}
+.mbody iframe{width:100%;height:62vh;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.mltext{font-size:18px;line-height:1.9}.artext{font-family:var(--f-ar);font-size:19px;line-height:2}.entext{font-size:16px;line-height:1.7}
+.simrow{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.simrow.me{background:var(--accent-soft)}
+.simtext{font-size:21px;text-align:right;line-height:2}
+.dif{color:var(--tj7);text-decoration:underline;text-underline-offset:6px;font-weight:700}
+.tjleg{font-size:12px}.tjleg b{font-size:16px}
+.tj0,.tj1,.tj2{color:var(--tjg)}.tj3{color:var(--tj3)}.tj4{color:var(--tj4)}.tj5{color:var(--tj5)}.tj6{color:var(--tj6)}.tj7{color:var(--tj7)}.tj8{color:var(--tj8)}.tj9{color:var(--tj9)}
+.tj10{color:var(--tj10)}.tj11{color:var(--tj11)}.tj12{color:var(--tj12)}.tj13{color:var(--tj13)}.tj14,.tj15{color:var(--tjg)}.tj16{color:var(--tj16)}
 </style>
 </head>
 <body>
@@ -264,7 +289,7 @@ let toastT;function toast(m){let t=$('#toast');if(!t){t=document.createElement('
 const LS='hifz-revival-v1';
 const DEF=()=>({v:1,setup:false,updated:0,juz:Object.fromEntries(Array.from({length:30},(_,i)=>[i+1,i>=16?'forgot':'none'])),
   pages:{},layout:'madani',perDay:2,cap:20,order:'asc',cur:1,mode:'read',color:true,markwf:true,big:false,
-  wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{},wish:[],newPerDay:5,salah:{}});
+  wf:{},wfStats:{r:0,w:0},log:{},mistakes:[],mk:{},qirath:null,snd:[],mem:{},wish:[],newPerDay:5,salah:{},tajweed:false,aud:{each:1,all:1,rate:1,gap:false},mtab:'ml'});
 let S=DEF();
 try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);if(!o.mem){o.mem={};o.setup=false}S=Object.assign(DEF(),o)}}catch(e){}
 let dbDoc=null,saveT=null;
@@ -281,6 +306,7 @@ async function loadData(){
   buildLayout(S.layout||'madani');
   TOK=Q.a.map(a=>a[5].split(' '));
   FREQ=new Set();TOK.forEach(t=>t.forEach(w=>{const n=norm(w);if(n)FREQ.add(n)}));
+  await loadExtra();
 }
 const pageJuz=p=>Q.a[PAGES[p][0]][2];
 const isConf=n=>n.length>=3&&(n[0]==='و'||n[0]==='ف')&&FREQ.has((n[0]==='و'?'ف':'و')+n.slice(1));
@@ -419,23 +445,26 @@ function bindCommon(root){
 /* ================= MUSHAF ================= */
 const LCLS={'ذ':'c-dh','ز':'c-z','ظ':'c-zh','ض':'c-d','ث':'c-th','س':'c-s','ص':'c-sd'};
 let revealed=new Set(),reps=0,selAyah=null,BUSY=false;
+const NJL='اأإآٱءدذرزوؤةۃےژڈڑ';const isAr=c=>/[ؠ-يٱ-ۓۺ-ۼ]/.test(c);
+const joinL=c=>isAr(c)&&!NJL.includes(c);
 function renderWord(w,opt){
   if(!LETTER.test(w))return esc(w);
-  if(opt.hint){const m=w.match(/^(.)([ؐ-ًؚ-ٰٟۖ-ۭ]*)/);const f=m[1]+m[2];return esc(f)+('اأإآٱدذرزوؤةى'.includes(m[1])?'':'ـ')}
-  let out='',i=0;
-  const conf=opt.wf&&isConf(norm(w));
-  while(i<w.length){const ch=w[i];let j=i+1;while(j<w.length&&/[ؐ-ًؚ-ٰٟۖ-ۭ]/.test(w[j]))j++;const seg=w.slice(i,j);
-    if(i===0&&conf)out+=`<span class="wf">${esc(seg)}</span>`;
-    else if(opt.color&&LCLS[ch])out+=`<span class="${LCLS[ch]}">${esc(seg)}</span>`;
-    else out+=esc(seg);i=j}
-  return out}
+  if(opt.hint){const m=w.match(/^(.)([ؐ-ًؚ-ٰٟۖ-ۭ]*)/);const f=m[1]+m[2];return esc(f)+(NJL.includes(m[1])?'':'ـ')}
+  const conf=opt.wf&&isConf(norm(w));const segs=[];let i=0,li=0;
+  while(i<w.length){const ch=w[i];let j=i+1;while(j<w.length&&/[ؐ-ًؚ-ٰٟۖ-ۭـ]/.test(w[j]))j++;
+    const isL=isAr(ch)&&ch!=='\u0640';let cls=(i===0&&conf)?'wf':'';if(!cls&&opt.tj&&isL&&opt.tj[li])cls=opt.tj[li];if(!cls&&opt.color&&LCLS[ch])cls=LCLS[ch];if(isL)li++;segs.push({ch,t:w.slice(i,j),cls});i=j}
+  // merge equal classes into runs; add zero-width joiners at run edges so Safari keeps letters joined
+  const runs=[];segs.forEach(g=>{const r=runs[runs.length-1];if(r&&r.cls===g.cls){r.t+=g.t;r.last=g.ch}else runs.push({cls:g.cls,t:g.t,first:g.ch,last:g.ch})});
+  if(runs.length===1&&!runs[0].cls)return esc(w);
+  return runs.map((r,k)=>{let t=r.t;if(k>0&&joinL(runs[k-1].last)&&isAr(r.first))t='‍'+t;if(k<runs.length-1&&joinL(r.last)&&isAr(runs[k+1].first))t=t+'‍';
+    return r.cls?`<span class="${r.cls}">${esc(t)}</span>`:esc(t)}).join('')}
 function ayahHTML(i,mode){
   const a=Q.a[i];const opt={color:S.color,wf:S.markwf,hint:mode==='hint'};
   const num=`<span class="anum">﴿${AD(a[1])}﴾</span>`;
   if((mode==='hide'||mode==='test')&&!revealed.has(i)){
     const first=mode==='test'?`<span class="anchor">${renderWord(TOK[i].find(w=>LETTER.test(w)),{})}</span> `:'';
     return `<span class="ayah" data-a="${i}">${first}<span class="hid"></span> ${num}</span> `}
-  return `<span class="ayah${selAyah===i?' sel':''}" data-a="${i}">${TOK[i].map(w=>renderWord(w,opt)).join(' ')} ${num}</span> `}
+  return `<span class="ayah${selAyah===i?' sel':''}" data-a="${i}">${mode==='hint'?TOK[i].map(w=>renderWord(w,opt)).join(' '):wordsHTML(i,opt)} ${num}</span> `}
 R.mushaf=function(){
   const p=Math.min(LAY.n,Math.max(1,S.cur||1));S.cur=p;const ids=PAGES[p];const app=$('#app');const o=S.pages[p];
   const status=!o?'<span class="pill">not in your plan</span>':o.st==='revive'?'<span class="pill red">to revive</span>':`<span class="pill ${o.s<=1?'amber':o.s>=4?'green':''}">strength ${o.s}/7 · next ${o.due<=today()?'today':'in '+(o.due-today())+' d'}</span>`;
@@ -449,13 +478,14 @@ R.mushaf=function(){
    <div class="row small">${layoutSelectHTML()}</div>
    <div class="row" style="justify-content:space-between"><span class="small"><b>Page ${p}</b> · Juz ${pageJuz(p)} · <span class="ar">${[...new Set(ids.map(i=>Q.a[i][0]))].map(x=>esc(SUR[x-1][0])).join('، ')}</span></span>${status}</div>
    <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
-   <div class="row small"><button class="sm" id="tColor" aria-pressed="${S.color}">Colour ذ ز ظ ض ث س ص</button><button class="sm" id="tWf" aria-pressed="${S.markwf}">Mark و/ف words</button><button class="sm" id="tBig" aria-pressed="${S.big}">Large text</button></div>
+   <div class="row small"><button class="sm" id="tTj" aria-pressed="${!!S.tajweed}">Tajweed colours</button><button class="sm" id="tColor" aria-pressed="${S.color}">Colour ذ ز ظ ض ث س ص</button><button class="sm" id="tWf" aria-pressed="${S.markwf}">Mark و/ف words</button><button class="sm" id="tBig" aria-pressed="${S.big}">Large text</button></div>
    ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button><span class="tiny muted">Recite the ayah first, then reveal.</span></div>':S.mode==='hide'?'<p class="tiny muted" style="margin:0">Tap an ayah to check it.</p>':''}
    <div class="bookwrap"><article class="paper mp book" id="book" aria-label="Page ${p}. Swipe right for the next page, left for the previous one.">
      <div class="phead"><span>${[...new Set(ids.map(i=>Q.a[i][0]))].map(x=>esc(SUR[x-1][0])).join(' · ')}</span><span>الجزء ${AD(pageJuz(p))}</span></div>
      <div class="mus lay${LAY.script==='i'?' ip':''}${S.big?' big':''}" lang="ar" dir="rtl" id="mus">${body}</div>
      <div class="pfoot"><span>${AD(p)}</span></div></article></div>
-   <div class="row small"><button class="sm" id="readMode">📖 Full page view</button><span class="tiny muted">Swipe right → next page, swipe left → previous page.</span></div>
+   <div class="row small"><button class="sm primary" id="playPage">▶ Listen to this page</button><button class="sm" id="readMode">📖 Full page view</button><span class="tiny muted">Swipe right → next page, swipe left → previous page.</span></div>
+   ${S.tajweed?tjLegendHTML():''}
    ${S.color?`<div class="legend">${Object.entries(LCLS).map(([l,c])=>`<span><span class="${c} ar" style="font-size:18px;font-weight:700">${l}</span></span>`).join('')}<span>tap Letters tab to practise</span></div>`:''}
    ${pageActions(p)}
    <section class="card" aria-labelledby="vc"><h2 id="vc">Check my recitation</h2>
@@ -488,7 +518,9 @@ R.mushaf=function(){
   $('#sur').onchange=e=>{const s=+e.target.value;setP(AP[aIndex(s,1)])};
   $('#juz').onchange=e=>setP(JUZP[+e.target.value][0]);
   document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.mushaf()});
-  $('#tColor').onclick=()=>{S.color=!S.color;save();R.mushaf()};
+  $('#tColor').onclick=()=>{S.color=!S.color;if(S.color)S.tajweed=false;save();R.mushaf()};
+  $('#tTj').onclick=async()=>{S.tajweed=!S.tajweed;if(S.tajweed){S.color=false;try{toast('Loading tajweed…');await loadTJ()}catch(e){S.tajweed=false;toast('Tajweed data did not load')}}save();R.mushaf()};
+  $('#playPage').onclick=()=>{const ps=PAGES[p];playRange(ps[0],ps[ps.length-1])};
   $('#tWf').onclick=()=>{S.markwf=!S.markwf;save();R.mushaf()};
   $('#tBig').onclick=()=>{S.big=!S.big;save();R.mushaf()};
   const rn=$('#revealNext');if(rn)rn.onclick=()=>{const n=ids.find(i=>!revealed.has(i));if(n!==undefined){revealed.add(n);refreshMus(ids)}else toast('Page complete')};
@@ -511,14 +543,6 @@ function bindPageActions(p){
   const rep=$('#rep');if(rep)rep.onclick=()=>{reps++;$('#repn').textContent=reps};
   const rv=$('#revived');if(rv)rv.onclick=()=>{markRevived(p);toast('Added to revision. It comes back tomorrow.');const n=revivePages()[0];R.mushaf()};
   document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{grade(p,+b.dataset.g);const nx=dueToday()[0];toast(['Back tomorrow','Back tomorrow','Scheduled','Scheduled far ahead'][+b.dataset.g]+(nx?` · next due: p ${nx}`:''));if(nx&&nx!==p){S.cur=nx;revealed=new Set();save()}R.mushaf()})}
-function ayahSheet(i){selAyah=i;const a=Q.a[i];
-  openSheet(`<div class="row" style="justify-content:space-between"><b>${esc(ref(i))}</b><button class="sm ghost" data-close>Close</button></div>
-   <div class="mus" style="font-size:24px;text-align:right">${TOK[i].map(w=>renderWord(w,{color:true,wf:true})).join(' ')}</div>
-   <div class="row"><a class="btn" href="https://quran.com/${a[0]}/${a[1]}" target="_blank" rel="noopener">Listen on quran.com</a><button id="shCheck">Check this ayah by voice</button><button id="shMist">Save as my mistake</button></div>
-   <div id="mistForm" hidden class="stack"><input id="mistNote" placeholder="What did you get wrong? e.g. said وَ instead of فَ"><button class="primary sm" id="mistSave">Save</button></div>`);
-  $('#shCheck').onclick=()=>{closeSheet();$('#from').value=i;$('#to').value=i;$('#said').focus();$('#said').scrollIntoView({block:'center'})};
-  $('#shMist').onclick=()=>{$('#mistForm').hidden=false;$('#mistNote').focus()};
-  $('#mistSave').onclick=()=>{S.mistakes.unshift({a:i,n:$('#mistNote').value.trim()||'Mistake',t:today()});save();closeSheet();toast('Saved to your mistakes book (Wa / Fa tab)')}}
 function openSheet(html){$('#overlay').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><div class="in">${html}</div></div>`;document.querySelectorAll('#overlay [data-close]').forEach(b=>b.onclick=closeSheet)}
 function closeSheet(){const o=$('#overlay');if(o)o.innerHTML='';if(selAyah!==null){selAyah=null;const m=$('#mus');if(m)m.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'))}}
 
@@ -941,7 +965,7 @@ R.qirath=function(){const app=$('#app');if(!S.qirath)migrateQirath();
   let body='';ids.forEach(i=>{body+=ayahHTML(i,S.mode)});
   app.innerHTML=`<div class="stack" style="padding-top:12px">
    <div class="row" style="justify-content:space-between"><button class="sm" id="qback">‹ All passages</button><span class="small"><b>${esc(qName(q))}</b></span></div>
-   <div class="row small"><label for="qend">Passage ends at ayah</label><select id="qend">${Array.from({length:n-q.a+1},(_,k)=>q.a+k).map(v=>`<option ${v===q.e?'selected':''}>${v}</option>`).join('')}</select><button class="sm" id="qopen">Open in mushaf (p ${AP[ids[0]]})</button></div>
+   <div class="row small"><label for="qend">Passage ends at ayah</label><select id="qend">${Array.from({length:n-q.a+1},(_,k)=>q.a+k).map(v=>`<option ${v===q.e?'selected':''}>${v}</option>`).join('')}</select><button class="sm" id="qopen">Open in mushaf (p ${AP[ids[0]]})</button><button class="sm primary" id="qplay">▶ Listen</button></div>
    <div class="seg" role="group" aria-label="Display mode">${[['read','Read'],['hint','First letters'],['test','Test'],['hide','Hide all']].map(([m,l])=>`<button data-mode="${m}" aria-pressed="${S.mode===m}">${l}</button>`).join('')}</div>
    ${S.mode==='test'?'<div class="row"><button class="primary" id="revealNext">Reveal next ayah</button><button id="hideAll" class="sm">Hide again</button></div>':''}
    <article class="paper"><div class="mus${S.big?' big':''}" lang="ar" id="mus">${body}</div></article>
@@ -950,6 +974,7 @@ R.qirath=function(){const app=$('#app');if(!S.qirath)migrateQirath();
   </div>`;
   $('#qback').onclick=()=>{QV.cur=null;R.qirath()};
   $('#qend').onchange=e=>{q.e=+e.target.value;markQirathPages();save();R.qirath()};
+  $('#qplay').onclick=()=>playRange(ids[0],ids[ids.length-1]);
   $('#qopen').onclick=()=>{S.cur=AP[ids[0]];save();go('mushaf')};
   document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;revealed=new Set();save();R.qirath()});
   const rn=$('#revealNext');if(rn)rn.onclick=()=>{const x=ids.find(i=>!revealed.has(i));if(x!==undefined){revealed.add(x);refreshIds(ids)}else toast('Passage complete')};
@@ -984,7 +1009,7 @@ function switchLayout(name){if(!LAY||name===LAY.name)return;const oldAP=AP,oldPa
   for(let p=1;p<=LAY.n;p++){let rev=false,act=null;new Set(PAGES[p].map(i=>oldAP[i])).forEach(op=>{const o=oldPages[op];if(!o)return;if(o.st==='revive')rev=true;else if(!act)act={...o};else{act.s=Math.min(act.s,o.s);act.due=Math.min(act.due,o.due)}});
     if(rev)np[p]={st:'revive'};else if(act)np[p]=act}
   S.pages=np;if(cur!==undefined)S.cur=AP[cur];revealed=new Set();save()}
-function wordText(i,k){const arr=LAY.script==='i'?WI[i]:WU[i];return (arr[k]||'').replace(/ /g,' ')}
+function wordText(i,k){const arr=LAY.script==='i'?WI[i]:WU[i];return (arr[k]||'').replace(/[\u00a0 \u200b\u200f]+(?=[\u06D6-\u06DC\u06E2\u06E9])/g,'').replace(/\u00a0/g,' ')}
 function pageHTML(p){const L=LAY.L,out=[];const base=(p-1)*L;
   const firstItem=g=>{for(let x=g;x<Math.min(LAY.lines.length,g+L*2);x++)if(LAY.lines[x].length)return LAY.lines[x][0];return null};
   const opt={color:S.color,wf:S.markwf,hint:S.mode==='hint'};
@@ -999,7 +1024,7 @@ function pageHTML(p){const L=LAY.L,out=[];const base=(p-1)*L;
       if(k>=words.length){h+=`<span class="w anum${sel}" data-a="${i}">${LAY.script==='i'?'۝'+AD(Q.a[i][1]):'﴿'+AD(Q.a[i][1])+'﴾'}</span>`;return}
       const t=wordText(i,k);
       if(hidden&&!(S.mode==='test'&&k===0))h+=`<span class="w hw" data-a="${i}">${esc(t)}</span>`;
-      else h+=`<span class="w${sel}${hidden?' anchor':''}" data-a="${i}">${renderWord(t,hidden?{}:opt)}</span>`});
+      else{opt.tj=hidden?null:tjWord(i,k);h+=`<span class="w${sel}${hidden?' anchor':''}" data-a="${i}">${renderWord(t,hidden?{}:opt)}</span>`}});
     out.push(`<div class="ln">${h}</div>`)}
   return out.join('')}
 function fitPage(){const m=$('#mus');if(!m||!m.classList.contains('lay'))return;const pr=m.parentElement;const cs=getComputedStyle(pr);const W=pr.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);if(!W||W<50)return;
@@ -1034,7 +1059,7 @@ function salahPick(pr,swap){const d=today();S.salah=S.salah||{};const key=d+':'+
   S.salah[key]=cur;Object.keys(S.salah).forEach(k=>{if(+k.split(':')[0]<d-7)delete S.salah[k]});save();return cur}
 let SV={pr:null,test:[false,false],rev:new Set()};
 function passageHTML(ids,test){const ip=LAY&&LAY.script==='i';return ids.map(i=>{const n=WU[i].length;const hidden=test&&!SV.rev.has(i);let h='';
-  for(let k=0;k<n;k++){const t=wordText(i,k);h+=hidden&&k>0?`<span class="hw">${esc(t)}</span> `:`<span class="${hidden?'anchor':''}">${renderWord(t,hidden?{}:{color:S.color,wf:S.markwf})}</span> `}
+  for(let k=0;k<n;k++){const t=wordText(i,k);h+=hidden&&k>0?`<span class="hw">${esc(t)}</span> `:`<span class="${hidden?'anchor':''}">${renderWord(t,hidden?{}:{color:S.color,wf:S.markwf,tj:tjWord(i,k)})}</span> `}
   return `<span class="ayah" data-a="${i}">${h}<span class="anum">${ip?'۝'+AD(Q.a[i][1]):'﴿'+AD(Q.a[i][1])+'﴾'}</span></span> `}).join('')}
 const mins=w=>Math.max(1,Math.round(w/40));
 R.salah=function(){const app=$('#app');if(!S.qirath)migrateQirath();
@@ -1079,14 +1104,15 @@ R.wish=function(){const app=$('#app');S.wish=S.wish||[];
     app.innerHTML=`<div class="stack" style="padding-top:12px">
      <div class="row" style="justify-content:space-between"><button class="sm" id="wback">‹ Wish list</button><span class="small"><b>${esc(SUR[w.s-1][1])} ${w.s}:${from}–${to}</b> · page ${AP[ids[0]]}</span></div>
      <section class="card"><h3>Today's new portion</h3><ol class="small"><li>Listen to it once (button below) and read the meaning.</li><li>Read each ayah 3 times looking, then 3 times without looking.</li><li>Join: recite all of today's ayat together 3 times.</li><li>Link it to yesterday's last ayah. Then check yourself with 🎙.</li></ol>
-      <div class="row"><a class="btn" href="https://quran.com/${w.s}/${from}-${to}" target="_blank" rel="noopener">Listen and meaning on quran.com</a><button class="sm" id="wtest" aria-pressed="${WV.test}">${WV.test?'Show all':'Hide and test'}</button></div></section>
+      <div class="row"><button class="primary sm" id="wplay">▶ Listen (Ahmad al-Nufais)</button><span class="tiny muted">Tap any ayah for its meaning and tafsir.</span><button class="sm" id="wtest" aria-pressed="${WV.test}">${WV.test?'Show all':'Hide and test'}</button></div></section>
      <div class="paper"><div class="mus${ip?' ip':''}" id="wmus" lang="ar" dir="rtl" style="${ip?'font-family:IndoPak,var(--f-quran);':''}text-align:right;text-align-last:auto">${passageHTML(ids,WV.test)}</div></div>
      ${checkCardHTML(ids)}
      <button class="primary" id="wdone">I have memorised ${to-from+1} ayat – add to revision</button>
     </div>`;
     $('#wback').onclick=()=>{WV.learn=null;R.wish()};
     $('#wtest').onclick=()=>{WV.test=!WV.test;R.wish()};
-    $('#wmus').onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;const i=+a.dataset.a;SV.rev.has(i)?SV.rev.delete(i):SV.rev.add(i);R.wish()};
+    $('#wplay').onclick=()=>playRange(ids[0],ids[ids.length-1]);
+    $('#wmus').onclick=e=>{const a=e.target.closest('[data-a]');if(!a)return;const i=+a.dataset.a;if(!WV.test){ayahSheet(i);return}SV.rev.has(i)?SV.rev.delete(i):SV.rev.add(i);R.wish()};
     $('#wdone').onclick=()=>{wishLearned(w,from,to);WV={learn:null,test:false};toast('Masha Allah! Added to your revision.');R.wish()};
     bindCheck();return}
   const t=wishToday();
@@ -1110,6 +1136,129 @@ R.wish=function(){const app=$('#app');S.wish=S.wish||[];
   app.querySelectorAll('[data-wu]').forEach(b=>b.onclick=()=>{const n=+b.dataset.wu;[S.wish[n-1],S.wish[n]]=[S.wish[n],S.wish[n-1]];save();R.wish()});
   app.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{const n=+b.dataset.wd;[S.wish[n+1],S.wish[n]]=[S.wish[n],S.wish[n+1]];save();R.wish()});
 };
+
+
+/* ================= LISTEN (Ahmad al-Nufais) · TAJWEED · MEANINGS ================= */
+const ONLINE=true; // the iPhone app build sets this to true (Claude artifacts cannot load audio or other sites)
+let TIM=null,SIM=null,TJ=null;const TJP={};
+async function loadExtra(){
+  try{const el=document.getElementById('sdata');SIM=el&&el.textContent.length>100?JSON.parse(el.textContent):await (await fetch('similar.json')).json()}catch(e){SIM=[]}
+  if(ONLINE){try{TIM=await (await fetch('timing.json')).json()}catch(e){TIM=null}}
+  if(S.tajweed){try{await loadTJ()}catch(e){S.tajweed=false}}}
+async function loadTJ(){if(TJ)return TJ;const el=document.getElementById('tdata');TJ=el&&el.textContent.length>100?JSON.parse(el.textContent):await (await fetch('tajweed.json')).json();return TJ}
+function tjWord(i,k){if(!S.tajweed||!TJ)return null;const sc=LAY&&LAY.script==='i'?'i':'u';const key=sc+i;let m=TJP[key];
+  if(!m){m={};const s=TJ[sc][i]||'';for(let x=0;x+2<s.length;x+=3){const kk=s.charCodeAt(x)-48,li=s.charCodeAt(x+1)-48,c=s.charCodeAt(x+2)-65;(m[kk]=m[kk]||{})[li]='tj'+c}TJP[key]=m}
+  return m[k]||null}
+const TJLEG=[['tj3','Madd 2 (natural)','مد طبيعي'],['tj6','Madd 4–5 (wajib)','مد واجب'],['tj4','Madd 2/4/6 (ja\'iz)','مد جائز'],['tj5','Madd 6 (lazim)','مد لازم'],['tj7','Qalqalah','قلقلة'],['tj16','Ghunnah','غنة'],['tj9','Ikhfa','إخفاء'],['tj8','Ikhfa shafawi','إخفاء شفوي'],['tj12','Idgham with ghunnah','إدغام بغنة'],['tj13','Idgham without ghunnah','إدغام بلا غنة'],['tj10','Idgham shafawi','إدغام شفوي'],['tj11','Iqlab','إقلاب'],['tj0','Not pronounced','لا تُنطق']];
+function tjLegendHTML(){return `<div class="legend tjleg">${TJLEG.map(([c,en,ar])=>`<span><b class="${c}">■</b> ${en} <span class="ar">${ar}</span></span>`).join('')}</div>`}
+function wordsHTML(i,opt){const n=WU[i].length;let h='';for(let k=0;k<n;k++){opt.tj=tjWord(i,k);h+=renderWord(wordText(i,k),opt)+' '}opt.tj=null;return h}
+
+/* ---- audio player ---- */
+const AUD={el:null,on:false,paused:false,from:0,to:0,i:0,eN:0,aN:0,s:0,iv:null,gapT:null};
+const audUrl=s=>`https://cdn.mp3quran.net/audio/ahmad-nufais/r1/${String(s).padStart(3,'0')}.mp3`;
+function tim(i){const a=Q.a[i];const t=TIM&&TIM[a[0]-1]&&TIM[a[0]-1][a[1]-1];return t?[t[0]/100,t[1]/100]:null}
+function audSet(){S.aud=Object.assign({each:1,all:1,rate:1,gap:false},S.aud||{});return S.aud}
+function playRange(from,to){
+  if(!ONLINE){toast('Audio plays in the Hifz app on your iPhone');return}
+  if(!TIM){toast('Audio timings did not load. Check the internet and reopen.');return}
+  if(!AUD.el){const el=new Audio();el.preload='auto';AUD.el=el;
+    el.addEventListener('error',()=>{if(AUD.on){toast('Could not load the recitation. Check the internet.');audStop()}});
+    el.addEventListener('waiting',()=>audBar('Loading…'));el.addEventListener('playing',()=>audBar());}
+  audSet();clearTimeout(AUD.gapT);Object.assign(AUD,{on:true,paused:false,from:Math.min(from,to),to:Math.max(from,to),eN:0,aN:0});
+  audGo(AUD.from);clearInterval(AUD.iv);AUD.iv=setInterval(audTick,80)}
+function audGo(i){AUD.i=i;const a=Q.a[i],t=tim(i),el=AUD.el;if(!t){audStop();return}
+  if(AUD.s!==a[0]||!el.src){AUD.s=a[0];el.src=audUrl(a[0])+'#t='+t[0];el.addEventListener('loadedmetadata',()=>{try{el.currentTime=tim(AUD.i)[0]}catch(e){}},{once:true})}
+  else{try{el.currentTime=t[0]}catch(e){}}
+  el.playbackRate=S.aud.rate;const p=el.play();if(p&&p.catch)p.catch(()=>{AUD.paused=true;audBar()});AUD.paused=false;audHL();audBar()}
+function audTick(){if(!AUD.on||AUD.paused||AUD.gapT)return;const el=AUD.el,t=tim(AUD.i);if(!t||el.paused)return;
+  if(el.currentTime>=t[1]-0.06)audEnd()}
+function audEnd(){const A=S.aud;AUD.eN++;
+  if(A.gap){const t=tim(AUD.i);AUD.el.pause();const ms=Math.min(30000,Math.max(1500,(t[1]-t[0])*1000/(A.rate||1)));
+    AUD.gapT=setTimeout(()=>{AUD.gapT=null;if(AUD.on)audCont()},ms);audBar('Your turn – repeat it…');return}
+  audCont()}
+function audCont(){const A=S.aud,el=AUD.el;
+  if(AUD.eN<A.each||A.each===0){audGo(AUD.i);return}
+  AUD.eN=0;if(AUD.i<AUD.to){const nx=AUD.i+1,tn=tim(nx),tc=tim(AUD.i);
+    if(Q.a[nx][0]===Q.a[AUD.i][0]&&tn&&Math.abs(tn[0]-tc[1])<0.3&&!el.paused){AUD.i=nx;audHL();audBar()}else audGo(nx);return}
+  AUD.aN++;if(A.all===0||AUD.aN<A.all){audGo(AUD.from);return}
+  audStop();toast('Finished')}
+function audToggle(){if(!AUD.on)return;const el=AUD.el;if(AUD.gapT){clearTimeout(AUD.gapT);AUD.gapT=null;AUD.paused=false;audCont();return}
+  if(el.paused){AUD.paused=false;const p=el.play();if(p&&p.catch)p.catch(()=>{})}else{AUD.paused=true;el.pause()}audBar()}
+function audStep(d){if(!AUD.on)return;clearTimeout(AUD.gapT);AUD.gapT=null;const n=Math.min(Q.a.length-1,Math.max(0,AUD.i+d));AUD.eN=0;if(n>AUD.to)AUD.to=n;if(n<AUD.from)AUD.from=n;audGo(n)}
+function audStop(){AUD.on=false;clearInterval(AUD.iv);clearTimeout(AUD.gapT);AUD.gapT=null;if(AUD.el){AUD.el.pause()}document.body.classList.remove('playing');
+  const b=$('#player');if(b)b.remove();document.querySelectorAll('.playing').forEach(e=>e.classList.remove('playing'))}
+function audHL(noTurn){document.querySelectorAll('#app .playing').forEach(e=>e.classList.remove('playing'));if(!AUD.on)return;
+  const els=document.querySelectorAll(`#app [data-a="${AUD.i}"]`);
+  if(!els.length&&!noTurn&&location.hash==='#mushaf'&&!BUSY&&AP[AUD.i]!==S.cur){S.cur=AP[AUD.i];revealed=new Set();save();R.mushaf();return}
+  els.forEach(e=>e.classList.add('playing'));
+  if(els[0]&&!document.body.classList.contains('reader')){const r=els[0].getBoundingClientRect();if(r.top<70||r.bottom>innerHeight-170)els[0].scrollIntoView({block:'center',behavior:'smooth'})}}
+new MutationObserver(()=>{if(AUD.on){clearTimeout(window.__ah);window.__ah=setTimeout(()=>audHL(true),30)}}).observe(document.getElementById('app'),{childList:true});
+const OPT=(v,arr,lab)=>arr.map(x=>`<option value="${x}" ${+v===x?'selected':''}>${lab(x)}</option>`).join('');
+function audBar(msg){if(!AUD.on)return;const A=audSet();let b=$('#player');
+  if(!b){b=document.createElement('div');b.id='player';b.className='player';b.setAttribute('role','region');b.setAttribute('aria-label','Recitation player');document.body.appendChild(b);document.body.classList.add('playing');
+    b.innerHTML=`<div class="in"><div class="row pl1"><span class="plref" id="plRef"></span><span class="tiny muted" id="plMsg"></span>
+      <span class="plbtns"><button class="sm" id="plPrev" aria-label="Previous ayah">⏮</button><button class="sm primary" id="plPlay" aria-label="Play or pause">❚❚</button><button class="sm" id="plNext" aria-label="Next ayah">⏭</button><button class="sm ghost" id="plX" aria-label="Stop">✕</button></span></div>
+      <div class="row pl2"><label class="tiny">Each ayah <select id="plEach">${OPT(A.each,[1,2,3,5,7,10,20,0],x=>x?x+'×':'∞')}</select></label>
+      <label class="tiny">Whole part <select id="plAll">${OPT(A.all,[1,2,3,5,10,0],x=>x?x+'×':'∞')}</select></label>
+      <label class="tiny">Speed <select id="plRate">${OPT(A.rate,[0.75,1,1.25,1.5],x=>x+'×')}</select></label>
+      <button class="sm" id="plGap" aria-pressed="${A.gap}" title="Pause after each ayah so you can repeat it">Pause for me to repeat</button></div></div>`;
+    $('#plPlay').onclick=audToggle;$('#plPrev').onclick=()=>audStep(-1);$('#plNext').onclick=()=>audStep(1);$('#plX').onclick=audStop;
+    $('#plEach').onchange=e=>{S.aud.each=+e.target.value;AUD.eN=0;save()};$('#plAll').onchange=e=>{S.aud.all=+e.target.value;AUD.aN=0;save()};
+    $('#plRate').onchange=e=>{S.aud.rate=+e.target.value;AUD.el.playbackRate=S.aud.rate;save()};
+    $('#plGap').onclick=e=>{S.aud.gap=!S.aud.gap;e.currentTarget.setAttribute('aria-pressed',S.aud.gap);save()}}
+  const nv=document.querySelector('nav.tabs');b.style.bottom=nv&&nv.offsetParent!==null&&!document.body.classList.contains('reader')?nv.offsetHeight+'px':'';
+  const a=Q.a[AUD.i];$('#plRef').innerHTML=`<span class="ar">${esc(SUR[a[0]-1][0])}</span> ${a[0]}:${a[1]}`;
+  $('#plMsg').textContent=msg||(A.each!==1?`ayah ${AUD.eN+1}/${A.each||'∞'}`:'')+(A.all!==1?` · round ${AUD.aN+1}/${A.all||'∞'}`:'');
+  $('#plPlay').textContent=(AUD.paused||AUD.el.paused)&&!AUD.gapT?'▶':'❚❚'}
+
+/* ---- tap an ayah: meanings, i'rab, tafsir, similar verses ---- */
+const MTABS=[['ml','Malayalam'],['irab','إعراب'],['ik','ابن كثير'],['zilal','في ظلال'],['en','English'],['safwa','صفوة التفاسير'],['sim','Similar']];
+const MCACHE={};
+async function getJSON(u){if(MCACHE[u])return MCACHE[u];const r=await fetch(u);if(!r.ok)throw new Error(r.status);const j=await r.json();MCACHE[u]=j;return j}
+function toParas(html,cls){html=String(html||'').replace(/<sup[^>]*>.*?<\/sup>/gi,'').replace(/<\s*(br|\/p|\/h\d|\/div|\/li)[^>]*>/gi,'\n');
+  const t=new DOMParser().parseFromString(html,'text/html').body.textContent||'';
+  return t.split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>`<p class="${cls||''}">${esc(x)}</p>`).join('')||'<p class="small muted">Nothing found for this ayah.</p>'}
+const isDark=()=>document.documentElement.dataset.theme==='dark'||(document.documentElement.dataset.theme!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+function qpFrame(s,a,type,book){return `<iframe title="${type}" src="https://quranpedia.net/embed?surah=${s}&ayah=${a}&type=${type}&book=${book}&theme=${isDark()?'dark':'sepia'}&size=110&radius=sm"></iframe><p class="tiny muted">From quranpedia.net (الموسوعة القرآنية). Use its back arrow to choose another book.</p>`}
+async function loadMeaning(i,tab){const a=Q.a[i],s=a[0],n=a[1],box=$('#mBody');if(!box)return;S.mtab=tab;save();
+  document.querySelectorAll('#mTabs [data-mt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.mt===tab));
+  if(tab==='sim'){box.innerHTML=simHTML(i);box.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>{const j=+b.dataset.sim;closeSheet();S.cur=AP[j];save();go('mushaf');setTimeout(()=>ayahSheet(j),60)});return}
+  if(!ONLINE){box.innerHTML='<p class="small">Meanings and tafsir open in the <b>Hifz app on your iPhone</b> (sabiq1124.github.io/hifi). The <b>Similar</b> tab works here too.</p>';return}
+  box.innerHTML='<p class="small muted">Loading…</p>';
+  try{
+    if(tab==='ml'){const j=await getJSON(`https://api.quran.com/api/v4/quran/translations/37?verse_key=${s}:${n}`);box.innerHTML=`<div lang="ml" class="mltext">${toParas(j.translations[0].text)}</div><p class="tiny muted">Malayalam: Abdul Hameed &amp; Kunhi Mohammed</p>`}
+    else if(tab==='ik'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/14/by_ayah/${s}:${n}`);box.innerHTML=`<div lang="ar" dir="rtl" class="artext">${toParas(j.tafsir.text)}</div><p class="tiny muted">تفسير ابن كثير · quran.com. Ibn Kathir often explains a group of ayat together.</p>`}
+    else if(tab==='en'){const j=await getJSON(`https://api.quran.com/api/v4/tafsirs/817/by_ayah/${s}:${n}`);box.innerHTML=`<div class="entext">${toParas(j.tafsir.text)}</div><p class="tiny muted">Tazkirul Quran (Maulana Wahiduddin Khan) – a short, simple English tafsir · quran.com</p>`}
+    else if(tab==='irab')box.innerHTML=qpFrame(s,n,'e3rab',316);
+    else if(tab==='safwa')box.innerHTML=qpFrame(s,n,'tafsir',160);
+    else if(tab==='zilal'){const u=`https://quran-tafsir.net/qotb/sura${s}-aya${n}.html`;box.innerHTML=`<iframe title="Fi Zilal al-Quran" src="${u}"></iframe><p class="tiny muted">في ظلال القرآن – سيد قطب · quran-tafsir.net · <a href="${u}" target="_blank" rel="noopener">open in Safari</a>. Fi Zilal explains passages, so scroll to find this ayah.</p>`}
+  }catch(e){box.innerHTML='<p class="small">Could not load. Check the internet and tap the tab again.</p>'}}
+function simWords(j){return WU[j].map((_,k)=>wordText(j,k)).filter(w=>LETTER.test(w))}
+function lcsKeep(A,B){const a=A.map(norm),b=B.map(norm),n=a.length,m=b.length;const L=Array.from({length:n+1},()=>new Int16Array(m+1));
+  for(let x=n-1;x>=0;x--)for(let y=m-1;y>=0;y--)L[x][y]=a[x]===b[y]?L[x+1][y+1]+1:Math.max(L[x+1][y],L[x][y+1]);
+  const ka=new Set(),kb=new Set();let x=0,y=0;while(x<n&&y<m){if(a[x]===b[y]){ka.add(x);kb.add(y);x++;y++}else if(L[x+1][y]>=L[x][y+1])x++;else y++}return [ka,kb]}
+function simHTML(i){const L=(SIM&&SIM[i])||[];if(!L.length)return '<p class="small muted" style="margin:0">No close look-alike verse for this ayah.</p>';
+  const A=simWords(i);const ip=LAY&&LAY.script==='i';
+  const row=(j,words,keep,me)=>`<div class="simrow${me?' me':''}"><div class="row" style="justify-content:space-between"><b class="small">${me?'This ayah · ':''}${esc(ref(j))}</b>${me?'':`<button class="sm" data-sim="${j}">Open p ${AP[j]}</button>`}</div>
+    <div class="mus simtext${ip?' ip':''}" lang="ar" dir="rtl">${words.map((w,k)=>keep.has(k)?esc(w):`<span class="dif">${esc(w)}</span>`).join(' ')}</div></div>`;
+  const first=new Set(A.map((_,k)=>k));
+  return `<p class="small muted" style="margin:0">Verses that sound almost the same. <span class="dif">Underlined</span> words are where they differ – that is where mix-ups happen.</p>`+
+    row(i,A,first,true)+L.map(j=>{const B=simWords(j);const kb=lcsKeep(A,B)[1];return row(j,B,kb,false)}).join('')}
+function ayahSheet(i){selAyah=i;const a=Q.a[i];const s=a[0];const last=aIndex(s,SUR[s-1][2]);const ip=LAY&&LAY.script==='i';const ns=(SIM&&SIM[i]||[]).length;
+  openSheet(`<div class="row" style="justify-content:space-between"><b>${esc(ref(i))}</b><button class="sm ghost" data-close>Close</button></div>
+   <div class="mus${ip?' ip':''}" lang="ar" dir="rtl" style="font-size:25px;text-align:right">${wordsHTML(i,{color:S.color,wf:true})}</div>
+   <div class="row"><button class="primary sm" id="shPlay">▶ Play from here</button><button class="sm" id="shRep">🔁 Repeat this ayah</button><button class="sm" id="shCheck">🎙 Check by voice</button><button class="sm" id="shMist">Save as mistake</button></div>
+   <div id="mistForm" hidden class="stack"><input id="mistNote" placeholder="What did you get wrong? e.g. said وَ instead of فَ"><button class="primary sm" id="mistSave">Save</button></div>
+   <div class="mtabs" id="mTabs" role="tablist">${MTABS.map(([k,l])=>`<button role="tab" data-mt="${k}" aria-selected="false"${/[ء-ي]/.test(l)?' class="ar"':''}>${l}${k==='sim'&&ns?` (${ns})`:''}</button>`).join('')}</div>
+   <div id="mBody" class="mbody" role="tabpanel"></div>`);
+  $('.sheet').classList.add('tall');
+  $('#shPlay').onclick=()=>{closeSheet();playRange(i,last)};
+  $('#shRep').onclick=()=>{closeSheet();audSet();if(S.aud.each===1)S.aud.each=5;S.aud.all=1;save();playRange(i,i)};
+  $('#shCheck').onclick=()=>{closeSheet();const f=$('#from'),t=$('#to');if(f&&[...f.options].some(o=>+o.value===i)){f.value=i;t.value=i}const sd=$('#said');if(sd){sd.focus();sd.scrollIntoView({block:'center'})}};
+  $('#shMist').onclick=()=>{$('#mistForm').hidden=false;$('#mistNote').focus()};
+  $('#mistSave').onclick=()=>{S.mistakes.unshift({a:i,n:$('#mistNote').value.trim()||'Mistake',t:today()});save();closeSheet();toast('Saved to your mistakes book (Wa / Fa tab)')};
+  document.querySelectorAll('#mTabs [data-mt]').forEach(b=>b.onclick=()=>loadMeaning(i,b.dataset.mt));
+  loadMeaning(i,S.mtab&&MTABS.some(x=>x[0]===S.mtab)?S.mtab:'ml')}
 
 
 /* ================= LIVE MICROPHONE (standalone app) ================= */
